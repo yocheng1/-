@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-50: #eef5ff;
+  --color-brand-100: #d9e8ff;
+  --color-brand-200: #bcd7ff;
+  --color-brand-300: #8ebeff;
+  --color-brand-400: #599aff;
+  --color-brand-500: #3374f6;
+  --color-brand-600: #1f55eb;
+  --color-brand-700: #1a43d7;
+  --color-brand-800: #1c39ae;
+  --color-brand-900: #1c3589;
+  --color-ink: #10131a;
+  --font-sans: 'Noto Sans TC', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    'PingFang TC', 'Microsoft JhengHei', sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-family: var(--font-sans);
+}
+
+/* 表單元件的共用樣式，避免每個 input 都重複一長串 class */
+@utility field {
+  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm
+         text-slate-900 shadow-xs transition
+         placeholder:text-slate-400
+         focus:border-brand-500 focus:ring-2 focus:ring-brand-500/25 focus:outline-none
+         disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500;
+}
+
+@utility label {
+  @apply mb-1.5 block text-sm font-medium text-slate-700;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5
+         text-sm font-semibold transition
+         focus-visible:outline-2 focus-visible:outline-offset-2
+         disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white hover:bg-brand-700 focus-visible:outline-brand-600;
+}
+
+@utility btn-secondary {
+  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50
+         focus-visible:outline-slate-500;
+}
+
+@utility btn-danger {
+  @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50
+         focus-visible:outline-red-500;
+}
+
+@utility card {
+  @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+}
