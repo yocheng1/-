@@ -16,7 +16,7 @@ export default function EventsPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-3xl font-black tracking-tight text-paper">活動列表</h1>
+        <h1 className="text-3xl display tracking-tight text-shell">活動列表</h1>
         <p className="mt-1.5 text-dim">選擇有興趣的活動，登入後即可報名。</p>
       </header>
 
@@ -52,7 +52,7 @@ export default function EventsPage() {
                       <WindowBadge window={window} availability={availability} />
                     </div>
 
-                    <h2 className="text-lg font-bold text-paper">{event.title}</h2>
+                    <h2 className="text-lg display text-shell">{event.title}</h2>
 
                     {event.summary && (
                       <p className="mt-1.5 line-clamp-2 text-sm text-dim">
@@ -63,21 +63,21 @@ export default function EventsPage() {
                     <dl className="mt-4 space-y-1 text-sm">
                       <div className="flex gap-2">
                         <dt className="shrink-0 text-faint">時間</dt>
-                        <dd className="text-paper">
+                        <dd className="text-shell">
                           {formatDateRange(event.startsAt, event.endsAt)}
                         </dd>
                       </div>
                       {event.location && (
                         <div className="flex gap-2">
                           <dt className="shrink-0 text-faint">地點</dt>
-                          <dd className="text-paper">{event.location}</dd>
+                          <dd className="text-shell">{event.location}</dd>
                         </div>
                       )}
                     </dl>
 
                     <div className="mt-4 flex items-center justify-between border-t hairline pt-3 text-sm">
                       <CapacityText availability={availability} />
-                      <span className="font-semibold text-paper">查看詳情 →</span>
+                      <span className="font-semibold text-shell">查看詳情 →</span>
                     </div>
                   </div>
                 </Link>

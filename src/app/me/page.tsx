@@ -36,7 +36,7 @@ export default async function MyRegistrationsPage({
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-3xl font-black tracking-tight text-paper">我的報名</h1>
+        <h1 className="text-3xl display tracking-tight text-shell">我的報名</h1>
         <p className="mt-1.5 text-dim">
           {user.name || '會員'}
           {user.phone && ` ・ ${formatPhone(user.phone)}`}
@@ -52,7 +52,7 @@ export default async function MyRegistrationsPage({
 
       {cancelled && (
         <div
-          className="mb-6 rounded-xl border hairline bg-transparent/5 px-4 py-3 text-paper"
+          className="mb-6 rounded-xl border hairline bg-transparent/5 px-4 py-3 text-shell"
           role="status"
         >
           已取消報名。若該活動有候補名單，名額已自動遞補給下一位。
@@ -69,7 +69,7 @@ export default async function MyRegistrationsPage({
       ) : (
         <div className="space-y-8">
           <section>
-            <h2 className="mb-3 text-lg font-bold text-paper">進行中的報名</h2>
+            <h2 className="mb-3 text-lg display text-shell">進行中的報名</h2>
             {active.length === 0 ? (
               <p className="card p-6 text-sm text-dim">沒有進行中的報名。</p>
             ) : (
@@ -83,7 +83,7 @@ export default async function MyRegistrationsPage({
                         </div>
                         <Link
                           href={`/events/${registration.event.slug}`}
-                          className="text-lg font-bold text-paper hover:text-paper"
+                          className="text-lg font-bold text-shell hover:text-shell"
                         >
                           {registration.event.title}
                         </Link>
@@ -114,7 +114,7 @@ export default async function MyRegistrationsPage({
 
           {past.length > 0 && (
             <section>
-              <h2 className="mb-3 text-lg font-bold text-dim">已取消</h2>
+              <h2 className="mb-3 text-lg display text-dim">已取消</h2>
               <ul className="space-y-3">
                 {past.map((registration) => (
                   <li key={registration.id} className="card p-5 opacity-70">
@@ -123,7 +123,7 @@ export default async function MyRegistrationsPage({
                     </div>
                     <Link
                       href={`/events/${registration.event.slug}`}
-                      className="font-semibold text-paper hover:text-paper"
+                      className="font-semibold text-shell hover:text-shell"
                     >
                       {registration.event.title}
                     </Link>

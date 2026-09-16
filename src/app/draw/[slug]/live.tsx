@@ -113,7 +113,7 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
       {/* 加碼快報 */}
       {bonusAlert && (
         <div
-          className="mb-6 border border-paper bg-paper px-5 py-5 text-center text-ink"
+          className="mb-6 border border-shell bg-shell px-5 py-5 text-center text-ink"
           role="status"
         >
           <p className="micro animate-pulse opacity-60">加碼獎項登場</p>
@@ -122,13 +122,13 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
       )}
 
       <header className="mb-6 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="text-2xl display sm:text-3xl">
           {state.event.title}
         </h1>
         <p className="mt-3 flex flex-wrap items-center justify-center gap-2 micro text-dim">
           <span
             className={`inline-block size-2 rounded-full ${
-              connection === 'live' ? 'bg-paper' : 'bg-white/35 animate-pulse'
+              connection === 'live' ? 'bg-shell' : 'bg-white/35 animate-pulse'
             }`}
             aria-hidden="true"
           />
@@ -155,7 +155,7 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
               </span>
             )}
             <p className="micro-lg text-dim">Winner</p>
-            <h2 className="mt-2 text-xl font-semibold tracking-tight">{latest.name}</h2>
+            <h2 className="mt-2 text-xl display">{latest.name}</h2>
 
             <ul className="mt-6 flex flex-wrap justify-center gap-3">
               {winnersFor(latest.id).map((winner) => (
@@ -163,7 +163,7 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
                   key={winner.id}
                   className="rounded-xl border hairline bg-transparent/5 px-5 py-3"
                 >
-                  <p className="text-xl font-black text-paper">{winner.name}</p>
+                  <p className="text-xl font-black text-shell">{winner.name}</p>
                   <p className="mt-0.5 font-mono text-xs text-dim">{winner.phone}</p>
                 </li>
               ))}
@@ -188,7 +188,7 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
                 key={prize.id}
                 className="border hairline px-3.5 py-2 text-sm"
               >
-                <span className="font-semibold text-paper">{prize.name}</span>
+                <span className="font-semibold text-shell">{prize.name}</span>
                 <span className="ml-1.5 text-faint">{prize.quantity} 位</span>
               </li>
             ))}
@@ -207,14 +207,14 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
               .map((prize) => (
                 <li key={prize.id} className="card p-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-bold text-paper">{prize.name}</h3>
+                    <h3 className="display text-shell">{prize.name}</h3>
                     {prize.isBonus && (
                       <span className="badge-on">
                         加碼
                       </span>
                     )}
                   </div>
-                  <p className="mt-1.5 text-paper">
+                  <p className="mt-1.5 text-shell">
                     {winnersFor(prize.id).map((w) => w.name).join('、') || '—'}
                   </p>
                 </li>

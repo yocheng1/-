@@ -20,7 +20,7 @@ export default async function AdminPage({
     <div>
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-paper">後台管理</h1>
+          <h1 className="text-3xl display tracking-tight text-shell">後台管理</h1>
           <p className="mt-1.5 text-dim">管理活動與報名名單。</p>
         </div>
         <Link href="/admin/events/new" className="btn-primary">
@@ -30,7 +30,7 @@ export default async function AdminPage({
 
       {(saved || deleted) && (
         <div
-          className="mb-6 rounded-xl border hairline bg-white/5 text-paper"
+          className="mb-6 rounded-xl border hairline bg-white/5 text-shell"
           role="status"
         >
           {saved ? '活動已儲存。' : '活動已刪除。'}
@@ -64,7 +64,7 @@ export default async function AdminPage({
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/events/${event.id}`}
-                        className="font-semibold text-paper hover:text-paper"
+                        className="font-semibold text-shell hover:text-shell"
                       >
                         {event.title}
                       </Link>
@@ -79,7 +79,7 @@ export default async function AdminPage({
                         availability={availability}
                       />
                     </td>
-                    <td className="px-4 py-3 text-paper">
+                    <td className="px-4 py-3 text-shell">
                       <span className="font-semibold">{availability.confirmed}</span>
                       {event.capacity > 0 && ` / ${event.capacity}`}
                       {availability.waitlisted > 0 && (
@@ -91,7 +91,7 @@ export default async function AdminPage({
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <Link
                         href={`/admin/events/${event.id}`}
-                        className="font-semibold text-paper hover:text-paper"
+                        className="font-semibold text-shell hover:text-shell"
                       >
                         管理 →
                       </Link>

@@ -37,7 +37,7 @@ export function RewardCard({ status }: { status: RewardStatus }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="micro text-faint">集點獎勵</p>
-          <h2 className="mt-2 text-lg font-semibold tracking-tight">
+          <h2 className="mt-2 text-lg display">
             參加 {status.threshold} 場活動，兌換咖啡一杯
           </h2>
         </div>
@@ -53,7 +53,7 @@ export function RewardCard({ status }: { status: RewardStatus }) {
             key={i}
             className={`flex size-11 items-center justify-center border text-sm ${
               i < (hasReward ? status.threshold : filled)
-                ? 'border-paper bg-paper text-ink'
+                ? 'border-shell bg-shell text-ink'
                 : 'hairline text-faint'
             }`}
           >
@@ -63,7 +63,7 @@ export function RewardCard({ status }: { status: RewardStatus }) {
       </div>
 
       <p className="mt-4 text-sm text-dim">
-        已累積 <strong className="text-paper">{status.qualifying}</strong> 場已結束的活動
+        已累積 <strong className="text-shell">{status.qualifying}</strong> 場已結束的活動
         {!hasReward && status.toNext > 0 && `，再參加 ${status.toNext} 場即可兌換`}
       </p>
 

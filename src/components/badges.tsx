@@ -48,7 +48,7 @@ export function CapacityText({ availability }: { availability: Availability }) {
   }
   return (
     <span className="text-dim">
-      剩餘 <strong className="text-paper">{availability.remaining}</strong> / {availability.capacity}
+      剩餘 <strong className="text-shell">{availability.remaining}</strong> / {availability.capacity}
     </span>
   )
 }

@@ -80,10 +80,10 @@ export function PrizeForm({ eventId }: { eventId: string }) {
         <input
           type="checkbox"
           name="isBonus"
-          className="mt-0.5 size-4 rounded hairline text-paper focus:ring-white/30"
+          className="mt-0.5 size-4 rounded hairline text-shell focus:ring-white/30"
         />
         <span className="text-sm">
-          <span className="font-medium text-paper">這是加碼獎項</span>
+          <span className="font-medium text-shell">這是加碼獎項</span>
           <span className="mt-0.5 block text-dim">
             勾選後，新增的當下現場所有人的畫面會跳出「加碼獎項登場」。
             事前不會出現在任何清單上。
@@ -97,7 +97,7 @@ export function PrizeForm({ eventId }: { eventId: string }) {
         </div>
       )}
       {state.message && (
-        <div className="rounded-lg border hairline bg-white/5 text-paper" role="status">
+        <div className="rounded-lg border hairline bg-white/5 text-shell" role="status">
           {state.message}
         </div>
       )}

@@ -49,14 +49,14 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
     <div>
       <Link
         href="/events"
-        className="mb-4 inline-block text-sm text-dim hover:text-paper"
+        className="mb-4 inline-block text-sm text-dim hover:text-shell"
       >
         ← 回活動列表
       </Link>
 
       {registered && (
         <div
-          className="mb-6 rounded-xl border hairline bg-white/5 text-paper"
+          className="mb-6 rounded-xl border hairline bg-white/5 text-shell"
           role="status"
         >
           <p className="font-semibold">
@@ -86,20 +86,20 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
             )}
           </div>
 
-          <h1 className="text-3xl font-black tracking-tight text-paper">{event.title}</h1>
+          <h1 className="text-3xl display tracking-tight text-shell">{event.title}</h1>
           {event.summary && <p className="mt-2 text-dim">{event.summary}</p>}
 
           <dl className="mt-6 grid gap-3 border-y hairline py-5 sm:grid-cols-2">
             <div>
               <dt className="text-sm text-faint">活動時間</dt>
-              <dd className="mt-0.5 font-medium text-paper">
+              <dd className="mt-0.5 font-medium text-shell">
                 {formatDateRange(event.startsAt, event.endsAt)}
               </dd>
             </div>
             {event.location && (
               <div>
                 <dt className="text-sm text-faint">地點</dt>
-                <dd className="mt-0.5 font-medium text-paper">{event.location}</dd>
+                <dd className="mt-0.5 font-medium text-shell">{event.location}</dd>
               </div>
             )}
             <div>
@@ -116,7 +116,7 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
             {event.registrationClosesAt && (
               <div>
                 <dt className="text-sm text-faint">報名截止</dt>
-                <dd className="mt-0.5 font-medium text-paper">
+                <dd className="mt-0.5 font-medium text-shell">
                   {formatDateTime(event.registrationClosesAt)}
                 </dd>
               </div>
@@ -125,8 +125,8 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
 
           {event.description && (
             <div className="mt-6">
-              <h2 className="mb-2 text-lg font-bold text-paper">活動說明</h2>
-              <p className="whitespace-pre-wrap leading-relaxed text-paper">
+              <h2 className="mb-2 text-lg display text-shell">活動說明</h2>
+              <p className="whitespace-pre-wrap leading-relaxed text-shell">
                 {event.description}
               </p>
             </div>
@@ -136,7 +136,7 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
 
       {/* ------------------------------------------------ 報名區塊 */}
       <section className="card mt-6 p-6 sm:p-8">
-        <h2 className="mb-5 text-xl font-bold text-paper">報名</h2>
+        <h2 className="mb-5 text-xl display text-shell">報名</h2>
 
         {existing ? (
           <div>
@@ -150,11 +150,11 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
             <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
               <div className="flex gap-2">
                 <dt className="text-faint">姓名</dt>
-                <dd className="text-paper">{existing.name}</dd>
+                <dd className="text-shell">{existing.name}</dd>
               </div>
               <div className="flex gap-2">
                 <dt className="text-faint">手機</dt>
-                <dd className="text-paper">{formatPhone(existing.phone)}</dd>
+                <dd className="text-shell">{formatPhone(existing.phone)}</dd>
               </div>
             </dl>
 

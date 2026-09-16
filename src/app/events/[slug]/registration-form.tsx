@@ -167,7 +167,7 @@ export function RegistrationForm({
       )}
 
       {waitlist && (
-        <div className="rounded-lg border hairline bg-white/5 text-paper">
+        <div className="rounded-lg border hairline bg-white/5 text-shell">
           目前名額已滿。送出後將列入候補名單，若有人取消會自動遞補並通知您。
         </div>
       )}

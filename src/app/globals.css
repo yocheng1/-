@@ -1,18 +1,24 @@
 @import 'tailwindcss';
 
 /**
- * 視覺沿用 KPlus / ZERO 既有網站的設計語彙：
- * 近黑底、米白字、全大寫寬字距的微標籤、髮絲級框線、大量留白。
+ * 設計 token 直接取自現有的 KPLUS RIDE & RUN 現場報到頁，
+ * 而不是另外發明一套：招牌紅 #E8382F、深墨底、米白字、
+ * Archivo（標題）＋ IBM Plex Mono（數字與微標籤）＋ Noto Sans TC（內文）。
  */
 @theme {
-  --color-ink: #080808;
-  --color-paper: #f2f2f0;
+  --color-red: #e8382f;
+  --color-red-deep: #c92b23;
+  --color-ink: #0a0a09;
+  --color-ink2: #141413;
+  --color-shell: #f4f3ef;
+  --color-ok: #1f7a3d;
 
-  --color-line: rgba(242, 242, 240, 0.09);
-  --color-line-strong: rgba(242, 242, 240, 0.2);
+  --color-line: rgba(244, 243, 239, 0.18);
+  --color-dgy: #8f8d85;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue',
-    Helvetica, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
+  --font-display: 'Archivo', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-sans: 'Noto Sans TC', sans-serif;
 }
 
 html {
@@ -22,27 +28,40 @@ html {
 
 body {
   background: var(--color-ink);
-  color: var(--color-paper);
+  color: var(--color-shell);
   font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* 文字層級：用透明度分層，而不是另外一整組灰階 */
+/* 標題用 Archivo，字重拉到 800/900 才是原本的味道 */
+@utility display {
+  font-family: var(--font-display);
+  @apply font-extrabold tracking-tight;
+}
+
 @utility text-dim {
-  color: rgba(242, 242, 240, 0.46);
+  color: var(--color-dgy);
 }
 @utility text-faint {
-  color: rgba(242, 242, 240, 0.28);
+  color: rgba(244, 243, 239, 0.35);
 }
 
-/* 全大寫微標籤 —— 這是這套設計最有辨識度的元素 */
+/* 微標籤一律等寬字 —— 原網站的數字、統計、狀態都是這個處理 */
 @utility micro {
-  @apply text-[10px] font-medium uppercase;
-  letter-spacing: 0.18em;
+  font-family: var(--font-mono);
+  @apply text-[11px] font-semibold uppercase;
+  letter-spacing: 0.14em;
 }
 @utility micro-lg {
-  @apply text-xs font-medium uppercase;
-  letter-spacing: 0.22em;
+  font-family: var(--font-mono);
+  @apply text-xs font-semibold uppercase;
+  letter-spacing: 0.1em;
+}
+@utility mono {
+  font-family: var(--font-mono);
 }
 
 @utility hairline {
@@ -50,103 +69,108 @@ body {
 }
 
 @utility card {
-  @apply rounded-none border bg-transparent;
+  @apply rounded border;
   border-color: var(--color-line);
+  border-radius: 4px;
 }
 
 @utility field {
-  @apply w-full rounded-none border bg-transparent px-3 py-2.5 text-sm transition;
-  border-color: var(--color-line-strong);
-  color: var(--color-paper);
+  @apply w-full border bg-transparent px-3.5 py-2.5 text-[15px] transition;
+  border-color: var(--color-line);
+  border-radius: 4px;
+  color: var(--color-shell);
 }
 .field::placeholder {
-  color: rgba(242, 242, 240, 0.28);
+  color: var(--color-dgy);
 }
 .field:focus {
   outline: none;
-  border-color: var(--color-paper);
+  border-color: var(--color-red);
 }
 .field:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
-/* 下拉選單的選項在深色底下要強制指定，否則某些瀏覽器會顯示白底白字 */
 .field option {
-  background: #080808;
-  color: #f2f2f0;
+  background: #141413;
+  color: #f4f3ef;
 }
 
 @utility label {
   @apply mb-2 block micro;
-  color: rgba(242, 242, 240, 0.46);
+  color: var(--color-dgy);
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-none border px-5 py-2.5
-         micro transition;
-  border-color: var(--color-line-strong);
-  color: var(--color-paper);
+  @apply inline-flex items-center justify-center gap-2 border px-4 py-2.5 transition;
+  font-family: var(--font-mono);
+  @apply text-[12.5px] font-semibold;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+  border-color: var(--color-line);
+  color: var(--color-shell);
 }
 .btn:hover:not(:disabled) {
-  border-color: var(--color-paper);
+  border-color: var(--color-shell);
 }
 .btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+  opacity: 0.6;
+  cursor: default;
 }
 
-/* 主要動作：實心反白，整個畫面只有它是亮的 */
+/* 主要動作＝招牌紅外框，按下去才填滿 —— 和現場報到頁的「確定報到」一致 */
 @utility btn-primary {
   @apply btn;
-  background: var(--color-paper);
-  color: var(--color-ink);
-  border-color: var(--color-paper);
+  border-color: var(--color-red);
+  color: var(--color-red);
+  background: transparent;
 }
 .btn-primary:hover:not(:disabled) {
-  background: #fff;
+  background: var(--color-red);
+  color: var(--color-ink);
 }
 
 @utility btn-secondary {
   @apply btn;
+  color: var(--color-dgy);
+}
+.btn-secondary:hover:not(:disabled) {
+  color: var(--color-shell);
 }
 
 @utility btn-danger {
   @apply btn;
-  border-color: rgba(248, 113, 113, 0.35);
-  color: #fca5a5;
+  border-color: rgba(232, 56, 47, 0.45);
+  color: var(--color-red);
 }
 .btn-danger:hover:not(:disabled) {
-  border-color: #fca5a5;
+  border-color: var(--color-red);
 }
 
-/**
- * 狀態標籤一律單色 —— 用亮度分層取代顏色。
- * 「成立」的狀態最亮（反白），次要狀態用細框線，失效狀態最暗。
- * 這樣同一個畫面不會出現綠色、琥珀色、灰色三種方框打架。
- */
+/* 狀態標籤：沿用原網站語彙 —— 紅色標籤、完成用綠色 */
 @utility badge {
-  @apply inline-flex items-center rounded-none border px-2.5 py-1 micro whitespace-nowrap;
-  border-color: var(--color-line-strong);
-  color: rgba(242, 242, 240, 0.46);
+  @apply inline-flex items-center border px-2.5 py-1 micro whitespace-nowrap;
+  border-radius: 20px;
+  border-color: var(--color-line);
+  color: var(--color-dgy);
 }
-
-/** 生效中：整個畫面最亮的元素 */
 @utility badge-on {
   @apply badge;
-  background: var(--color-paper);
+  background: var(--color-red);
+  border-color: var(--color-red);
   color: var(--color-ink);
-  border-color: var(--color-paper);
+  border-radius: 2px;
 }
-
-/** 等待中：細框線，文字較亮 */
 @utility badge-pending {
   @apply badge;
-  color: var(--color-paper);
+  color: var(--color-shell);
 }
-
-/** 已失效：最暗 */
+@utility badge-done {
+  @apply badge;
+  border-color: rgba(31, 122, 61, 0.5);
+  color: #4ade80;
+}
 @utility badge-off {
   @apply badge;
-  border-color: var(--color-line);
-  color: rgba(242, 242, 240, 0.28);
+  color: rgba(244, 243, 239, 0.3);
 }

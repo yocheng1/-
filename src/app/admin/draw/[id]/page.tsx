@@ -27,13 +27,13 @@ export default async function DrawConsolePage({ params }: PageProps) {
 
   return (
     <div>
-      <Link href="/admin" className="mb-4 inline-block text-sm text-dim hover:text-paper">
+      <Link href="/admin" className="mb-4 inline-block text-sm text-dim hover:text-shell">
         ← 回後台
       </Link>
 
       <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-paper">抽獎控制台</h1>
+          <h1 className="text-3xl display tracking-tight text-shell">抽獎控制台</h1>
           <p className="mt-1.5 text-dim">{event.title}</p>
         </div>
         <Link href={`/draw/${event.slug}`} className="btn-secondary" target="_blank">
@@ -42,15 +42,15 @@ export default async function DrawConsolePage({ params }: PageProps) {
       </header>
 
       <div className="mb-6 rounded-xl border hairline bg-transparent/5 px-4 py-3">
-        <p className="text-paper">
+        <p className="text-shell">
           目前可抽人數：<strong className="text-xl">{eligible.length}</strong> 人
-          <span className="ml-2 text-sm text-paper">（報名成功且尚未中獎）</span>
+          <span className="ml-2 text-sm text-shell">（報名成功且尚未中獎）</span>
         </p>
       </div>
 
       {/* ------------------------------------------- 獎項與抽獎 */}
       <section className="mb-8">
-        <h2 className="mb-3 text-xl font-bold text-paper">獎項</h2>
+        <h2 className="mb-3 text-xl display text-shell">獎項</h2>
 
         {prizes.length === 0 ? (
           <p className="card p-8 text-center text-dim">
@@ -67,7 +67,7 @@ export default async function DrawConsolePage({ params }: PageProps) {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg font-bold text-paper">{prize.name}</h3>
+                        <h3 className="text-lg display text-shell">{prize.name}</h3>
                         {prize.isBonus && (
                           <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-bold text-dim">
                             加碼
@@ -121,8 +121,8 @@ export default async function DrawConsolePage({ params }: PageProps) {
                             key={winner.id}
                             className="rounded-lg bg-white/5 px-3 py-1.5 text-sm"
                           >
-                            <span className="font-semibold text-paper">{winner.name}</span>
-                            <span className="ml-2 font-mono text-xs text-paper">
+                            <span className="font-semibold text-shell">{winner.name}</span>
+                            <span className="ml-2 font-mono text-xs text-shell">
                               {formatPhone(winner.phone)}
                             </span>
                           </li>
@@ -134,7 +134,7 @@ export default async function DrawConsolePage({ params }: PageProps) {
                         {verification && (
                           <span
                             className={`ml-2 font-semibold ${
-                              verification.ok ? 'text-paper' : 'text-red-400'
+                              verification.ok ? 'text-shell' : 'text-red-400'
                             }`}
                           >
                             {verification.ok ? '✓ 結果驗算相符' : '✗ 驗算不符，請檢查'}
@@ -152,7 +152,7 @@ export default async function DrawConsolePage({ params }: PageProps) {
 
       {/* ------------------------------------------- 新增獎項 */}
       <section className="card p-6">
-        <h2 className="mb-1 text-xl font-bold text-paper">新增獎項</h2>
+        <h2 className="mb-1 text-xl display text-shell">新增獎項</h2>
         <p className="mb-5 text-sm text-dim">
           活動進行中也可以隨時新增 —— 這就是加碼環節的作法。
         </p>

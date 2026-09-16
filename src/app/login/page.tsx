@@ -32,7 +32,7 @@ export default async function LoginPage({
   return (
     <div className="mx-auto max-w-md">
       <div className="card p-6 sm:p-8">
-        <h1 className="text-2xl font-bold tracking-tight text-paper">登入 KPlus 活動</h1>
+        <h1 className="text-2xl display tracking-tight text-shell">登入 KPlus 活動</h1>
         <p className="mt-1.5 mb-6 text-sm text-dim">
           登入後即可報名活動、查看與取消您的報名紀錄。
         </p>

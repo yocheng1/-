@@ -45,7 +45,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
       {event && <input type="hidden" name="id" value={event.id} />}
 
       <section className="card p-6">
-        <h2 className="mb-4 text-lg font-bold text-paper">基本資訊</h2>
+        <h2 className="mb-4 text-lg display text-shell">基本資訊</h2>
 
         <div className="space-y-4">
           <div>
@@ -154,7 +154,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
       </section>
 
       <section className="card p-6">
-        <h2 className="mb-1 text-lg font-bold text-paper">時間</h2>
+        <h2 className="mb-1 text-lg display text-shell">時間</h2>
         <p className="mb-4 text-sm text-dim">所有時間皆以台北時間 (UTC+8) 為準。</p>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -221,7 +221,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
       </section>
 
       <section className="card p-6">
-        <h2 className="mb-4 text-lg font-bold text-paper">名額與狀態</h2>
+        <h2 className="mb-4 text-lg display text-shell">名額與狀態</h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -263,10 +263,10 @@ export function EventForm({ event }: { event?: EventRecord }) {
             type="checkbox"
             name="waitlistEnabled"
             defaultChecked={state.values ? state.values.waitlistEnabled === 'on' : event?.waitlistEnabled}
-            className="mt-0.5 size-4 rounded hairline text-paper focus:ring-white/30"
+            className="mt-0.5 size-4 rounded hairline text-shell focus:ring-white/30"
           />
           <span className="text-sm">
-            <span className="font-medium text-paper">開放候補名單</span>
+            <span className="font-medium text-shell">開放候補名單</span>
             <span className="mt-0.5 block text-dim">
               名額滿了之後仍可報名並列入候補，有人取消時自動遞補最早候補者。
             </span>

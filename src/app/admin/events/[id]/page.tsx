@@ -29,13 +29,13 @@ export default async function AdminEventPage({ params }: PageProps) {
 
   return (
     <div>
-      <Link href="/admin" className="mb-4 inline-block text-sm text-dim hover:text-paper">
+      <Link href="/admin" className="mb-4 inline-block text-sm text-dim hover:text-shell">
         ← 回後台
       </Link>
 
       <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-paper">{event.title}</h1>
+          <h1 className="text-3xl display tracking-tight text-shell">{event.title}</h1>
           <p className="mt-1.5 font-mono text-sm text-faint">/events/{event.slug}</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -51,7 +51,7 @@ export default async function AdminEventPage({ params }: PageProps) {
       {/* ------------------------------------------------ 報名名單 */}
       <section className="mb-8">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-bold text-paper">
+          <h2 className="text-xl display text-shell">
             報名名單
             <span className="ml-2 text-base font-normal text-dim">
               已確認 {availability.confirmed}
@@ -94,7 +94,7 @@ export default async function AdminEventPage({ params }: PageProps) {
                     <td className="px-4 py-3">
                       <RegistrationStatusBadge status={registration.status} />
                     </td>
-                    <td className="px-4 py-3 font-medium text-paper">
+                    <td className="px-4 py-3 font-medium text-shell">
                       {registration.name}
                       {registration.notes && (
                         <div className="mt-0.5 text-xs font-normal text-dim">
@@ -156,13 +156,13 @@ export default async function AdminEventPage({ params }: PageProps) {
 
       {/* ------------------------------------------------ 編輯活動 */}
       <section>
-        <h2 className="mb-3 text-xl font-bold text-paper">編輯活動</h2>
+        <h2 className="mb-3 text-xl display text-shell">編輯活動</h2>
         <EventForm event={event} />
       </section>
 
       {/* ------------------------------------------------ 刪除 */}
       <section className="mt-8 rounded-xl border border-red-500/30 bg-red-500/10 p-6">
-        <h2 className="text-lg font-bold text-red-300">刪除活動</h2>
+        <h2 className="text-lg display text-red-300">刪除活動</h2>
         <p className="mt-1 mb-4 text-sm text-red-300">
           刪除後這場活動的 {registrations.length} 筆報名紀錄也會一併移除，且無法復原。
         </p>

@@ -23,8 +23,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="zh-Hant">
+      <head>
+        {/* 與現有 KPLUS RIDE & RUN 頁面相同的字體組合 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="flex min-h-dvh flex-col">
-        <header className="sticky top-0 z-30 border-b hairline bg-ink/90 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b hairline bg-ink/92 backdrop-blur-xl">
           <nav className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4">
             <Link href="/events" className="flex items-center gap-3.5">
               <span className="text-sm font-semibold tracking-[0.22em] uppercase">KPlus</span>
@@ -32,18 +41,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <span className="micro text-dim">Events</span>
             </Link>
 
-            <Link href="/events" className="micro text-dim transition hover:text-paper">
+            <Link href="/events" className="micro text-dim transition hover:text-shell">
               活動
             </Link>
 
             {user && (
-              <Link href="/me" className="micro text-dim transition hover:text-paper">
+              <Link href="/me" className="micro text-dim transition hover:text-shell">
                 我的報名
               </Link>
             )}
 
             {user?.role === 'admin' && (
-              <Link href="/admin" className="micro text-dim transition hover:text-paper">
+              <Link href="/admin" className="micro text-dim transition hover:text-shell">
                 後台
               </Link>
             )}
@@ -57,7 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <form action={signOutAction}>
                     <button
                       type="submit"
-                      className="micro text-dim transition hover:text-paper"
+                      className="micro text-dim transition hover:text-shell"
                     >
                       登出
                     </button>

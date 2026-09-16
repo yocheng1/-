@@ -30,7 +30,7 @@ function Alert({ kind, children }: { kind: 'error' | 'info'; children: React.Rea
   const styles =
     kind === 'error'
       ? 'border-red-500/30 bg-red-500/10 text-red-300'
-      : 'hairline bg-transparent/5 text-paper'
+      : 'hairline bg-transparent/5 text-shell'
   return (
     // 錯誤才用 alert（螢幕閱讀器會打斷朗讀）；一般提示用 status 就好
     <div
@@ -124,7 +124,7 @@ function OtpPanel({ redirectTo }: { redirectTo: string }) {
       <button
         type="button"
         onClick={() => window.location.reload()}
-        className="w-full text-center text-sm text-dim hover:text-paper"
+        className="w-full text-center text-sm text-dim hover:text-shell"
       >
         重新輸入手機號碼
       </button>
@@ -276,8 +276,8 @@ export function LoginForm({
             onClick={() => setTab(item.key)}
             className={`flex-1 rounded-md px-2 py-2 text-sm font-medium transition ${
               tab === item.key
-                ? 'bg-transparent text-paper shadow-sm'
-                : 'text-dim hover:text-paper'
+                ? 'bg-transparent text-shell shadow-sm'
+                : 'text-dim hover:text-shell'
             }`}
           >
             {item.label}
