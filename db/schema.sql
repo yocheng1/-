@@ -126,3 +126,47 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_registrations_active_unique
 
 CREATE INDEX IF NOT EXISTS idx_registrations_event ON registrations (event_id, status);
 CREATE INDEX IF NOT EXISTS idx_registrations_user ON registrations (user_id, created_at);
+
+-- ---------------------------------------------------------------- 現場抽獎
+-- 抽獎的參加者來自該活動「報名成功」的名單。
+
+CREATE TABLE IF NOT EXISTS prizes (
+  id          TEXT PRIMARY KEY,
+  event_id    TEXT NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+  name        TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  image_url   TEXT,
+  -- 這個獎項要抽出幾位
+  quantity    INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
+  -- 加碼獎項：活動進行中臨時新增，事前不公布
+  is_bonus    INTEGER NOT NULL DEFAULT 0 CHECK (is_bonus IN (0, 1)),
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  -- 抽獎種子：公開後任何人都能重算驗證中獎名單
+  draw_seed   TEXT,
+  drawn_at    TEXT,
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_prizes_event ON prizes (event_id, sort_order);
+
+CREATE TABLE IF NOT EXISTS winners (
+  id              TEXT PRIMARY KEY,
+  prize_id        TEXT NOT NULL REFERENCES prizes (id) ON DELETE CASCADE,
+  event_id        TEXT NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+  registration_id TEXT NOT NULL REFERENCES registrations (id) ON DELETE CASCADE,
+  -- 中獎當下的姓名與電話另存一份，之後報名資料被改也不影響已公布的結果
+  name            TEXT NOT NULL,
+  phone           TEXT NOT NULL,
+  rank            INTEGER NOT NULL,
+  created_at      TEXT NOT NULL
+);
+
+-- 同一個獎項不會重複抽到同一個人
+CREATE UNIQUE INDEX IF NOT EXISTS idx_winners_prize_registration
+  ON winners (prize_id, registration_id);
+
+-- 中過獎的人不再參加後續抽獎 —— 一場活動每個人最多中一次
+CREATE UNIQUE INDEX IF NOT EXISTS idx_winners_event_registration
+  ON winners (event_id, registration_id);
+
+CREATE INDEX IF NOT EXISTS idx_winners_event ON winners (event_id, created_at);

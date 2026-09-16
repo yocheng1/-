@@ -38,9 +38,14 @@ export default async function AdminEventPage({ params }: PageProps) {
           <h1 className="text-3xl font-black tracking-tight text-ink">{event.title}</h1>
           <p className="mt-1.5 font-mono text-sm text-slate-400">/events/{event.slug}</p>
         </div>
-        <Link href={`/events/${event.slug}`} className="btn-secondary">
-          查看前台頁面
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/events/${event.slug}`} className="btn-secondary">
+            查看前台頁面
+          </Link>
+          <Link href={`/admin/draw/${event.id}`} className="btn-primary">
+            現場抽獎控制台
+          </Link>
+        </div>
       </header>
 
       {/* ------------------------------------------------ 報名名單 */}

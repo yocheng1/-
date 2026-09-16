@@ -14,6 +14,7 @@ import {
   updateUserProfile,
 } from '../src/lib/repo/users.ts'
 import { hashPassword } from '../src/lib/auth/password.ts'
+import { createPrize, listPrizes } from '../src/lib/repo/draw.ts'
 
 const DAY = 24 * 60 * 60 * 1000
 
@@ -154,6 +155,15 @@ async function main() {
       })
       if (result.ok) console.log(`  ✓ ${name} 報名 ${launch.title}（${result.registration.status}）`)
     }
+  }
+
+  // ---------------------------------------------------------- 示範獎項
+  const drawEvent = findEventBySlug('alpha-helmet-launch')
+  if (drawEvent && listPrizes(drawEvent.id).length === 0) {
+    createPrize(drawEvent.id, { name: 'KPlus Alpha 安全帽', quantity: 1 })
+    createPrize(drawEvent.id, { name: '聯名車衣', quantity: 2 })
+    createPrize(drawEvent.id, { name: '補給包', quantity: 3 })
+    console.log('✓ 建立 3 個示範獎項（加碼獎項請於現場臨時新增）')
   }
 
   console.log(`\n完成。共建立 ${created.length} 場新活動。`)
