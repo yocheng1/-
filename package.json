@@ -1,0 +1,49 @@
+{
+  "name": "kplus-event-signup",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:reset": "tsx scripts/reset-db.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "test": "node scripts/run-tests.mjs",
+    "setup": "node scripts/init-env.mjs && npm run db:seed",
+    "emulators": "firebase emulators:start --only firestore,auth --project demo-kplus",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-kplus \"node --test tests-firebase/rules.test.mjs\"",
+    "test:firestore": "firebase emulators:exec --only firestore --project demo-kplus \"node --import tsx --test tests-firebase/*.test.mjs\"",
+    "db:seed:fs": "tsx --env-file-if-exists=.env.local scripts/seed-firestore.ts",
+    "dev:firebase": "firebase emulators:exec --only firestore --project demo-kplus \"npm run db:seed:fs && npm run dev\""
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.4.0",
+    "next": "^15.1.6",
+    "qrcode": "^1.5.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.7",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "firebase-tools": "^15.30.1",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

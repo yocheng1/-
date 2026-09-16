@@ -1,0 +1,100 @@
+rules_version = '2';
+
+/**
+ * Firestore 安全規則。
+ *
+ * 這份規則是「誰能讀寫哪些資料」的唯一防線 —— 前端程式碼是公開的，
+ * 任何人都能開發者工具直接打資料庫，所以權限一定要在這裡擋。
+ *
+ * 重要限制：規則的粒度是「整份文件」，沒辦法只隱藏文件裡的某幾個欄位。
+ * 因此凡是要公開顯示的資料（例如抽獎中獎名單），一開始就只存去識別化後的
+ * 內容（姓名＋遮罩電話），完整電話只存在私有的 registrations 裡。
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------- 共用判斷
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // 管理員以 Firebase Auth 的自訂宣告標記，前端改不了
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    // 工作人員：可以操作報到與核銷，但看不到後台管理
+    function isStaff() {
+      return signedIn() && (request.auth.token.staff == true || isAdmin());
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    // ---------------------------------------------------------- 使用者
+    // 只看得到自己的資料。電話、Email 都在這裡，不能外流。
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isStaff();
+      allow list: if isAdmin();
+      // 角色欄位一律由後端寫入，使用者不能自己升級成管理員
+      allow create, update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['role', 'createdAt']);
+      allow delete: if false;
+    }
+
+    // ---------------------------------------------------------- 活動
+    // 已發佈的活動任何人都看得到（未登入也能瀏覽），草稿只有管理員看得到。
+    match /events/{eventId} {
+      allow get, list: if resource.data.status != 'draft' || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------- 報名
+    // 報名表含姓名、電話、緊急聯絡人 —— 只有本人與工作人員讀得到。
+    // 一般參加者看不到別人的報名資料。
+    match /registrations/{registrationId} {
+      allow get: if isStaff() || isOwner(resource.data.userId);
+      allow list: if isStaff();
+
+      // 建立與取消都必須經過後端（才能正確計算名額），前端不直接寫
+      allow create, update, delete: if false;
+    }
+
+    // ---------------------------------------------------------- 獎項
+    // 現場大螢幕要即時顯示，所以公開可讀；只有後端能寫。
+    match /prizes/{prizeId} {
+      allow get, list: if true;
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------- 中獎名單
+    // 公開可讀 —— 但文件裡「只有」姓名與遮罩後的電話，
+    // 不含完整電話、Email 或其他個資（規則無法隱藏單一欄位，所以從源頭就不存）。
+    match /winners/{winnerId} {
+      allow get, list: if true;
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------- 現場報到
+    // 只有工作人員能讀寫。這正是原本報到頁缺少的那一層。
+    match /checkins/{checkinId} {
+      allow get, list: if isStaff();
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------- 集點兌換
+    // 使用者看得到自己的兌換紀錄，但不能自己新增（必須由門市人員核銷）。
+    match /rewards/{rewardId} {
+      allow get: if isStaff() || isOwner(resource.data.userId);
+      allow list: if isStaff();
+      allow write: if false;
+    }
+
+    // 沒有明確允許的一律拒絕
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
