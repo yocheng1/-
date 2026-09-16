@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import { getCurrentUser } from '@/lib/auth/session'
 import { signOutAction } from '@/app/actions/auth'
+import { SiteChrome } from './chrome'
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <SiteChrome />
         <header className="sticky top-0 z-30 border-b hairline bg-ink/92 backdrop-blur-xl">
           <nav className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-7 gap-y-2 px-5 py-4">
             <Link href="/" className="flex items-center gap-3.5">

@@ -31,8 +31,8 @@ export default async function TicketPage({ params, searchParams }: PageProps) {
     if (user.role !== 'admin') notFound()
   }
 
-  // QR 內容就是報名編號，工作人員掃到後即可報到
-  const qr = await QRCode.toString(id, {
+  // QR 只編 8 碼的票券代碼 —— 比編完整報名編號稀疏得多，暗一點、遠一點也掃得到
+  const qr = await QRCode.toString(reg.code || id, {
     type: 'svg',
     margin: 1,
     color: { dark: '#0A0A09', light: '#F4F3EF' },
@@ -86,6 +86,14 @@ export default async function TicketPage({ params, searchParams }: PageProps) {
                   </span>
                 )}
               </div>
+
+              {reg.code && (
+                <div className="mt-5 border-t hairline pt-5 text-center">
+                  <p className="micro text-faint">票券代碼</p>
+                  <p className="display mt-1.5 text-2xl tracking-[0.28em]">{reg.code}</p>
+                  <p className="mt-1.5 micro text-faint">掃不到時，報這組號碼給工作人員</p>
+                </div>
+              )}
 
               <dl className="mt-5 space-y-2 text-sm">
                 <div className="flex justify-between gap-3">

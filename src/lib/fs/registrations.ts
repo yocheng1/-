@@ -1,8 +1,24 @@
+import { randomBytes } from 'node:crypto'
 import { FieldValue } from 'firebase-admin/firestore'
 import { COL, db, registrationId } from '../firebase/admin'
 import { normalizePhone } from '../validation'
 
 export type RegistrationStatus = 'confirmed' | 'waitlist' | 'entered' | 'cancelled'
+
+/**
+ * 票券短代碼的字母表：拿掉容易看錯的 0/O、1/I/L。
+ * 工作人員若掃不到 QR，可以直接照著念或打這 8 碼。
+ */
+const CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
+
+export function generateTicketCode(length = 8): string {
+  const bytes = randomBytes(length)
+  let code = ''
+  for (let i = 0; i < length; i++) {
+    code += CODE_ALPHABET[bytes[i] % CODE_ALPHABET.length]
+  }
+  return code
+}
 
 export type RegisterInput = {
   name: string
@@ -88,10 +104,16 @@ export async function createRegistration(
 
       const now = new Date().toISOString()
 
+      // 取消後重新報名沿用原本的代碼，使用者不會拿到兩組不同的號碼
+      const code = existing.exists
+        ? (existing.data()!.code as string) || generateTicketCode()
+        : generateTicketCode()
+
       tx.set(regRef, {
         eventId,
         userId,
         status,
+        code,
         name: input.name.trim(),
         phone,
         email: (input.email ?? '').trim().toLowerCase() || null,

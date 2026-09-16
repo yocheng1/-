@@ -96,6 +96,7 @@ export type RosterEntry = {
   userId: string
   name: string
   phone: string
+  code: string
   status: string
   checkedInAt: string | null
 }
@@ -118,12 +119,15 @@ export async function listRoster(eventId: string): Promise<RosterEntry[]> {
   return regs.docs
     .filter((d) => (d.data() as { status: string }).status !== 'cancelled')
     .map((d) => {
-      const data = d.data() as { userId: string; name: string; phone: string; status: string }
+      const data = d.data() as {
+        userId: string; name: string; phone: string; status: string; code?: string
+      }
       return {
         registrationId: d.id,
         userId: data.userId,
         name: data.name,
         phone: data.phone,
+        code: data.code ?? '',
         status: data.status,
         checkedInAt: checkedIn.get(d.id) ?? null,
       }
@@ -145,4 +149,35 @@ export async function countAttendance(userId: string): Promise<number> {
   const snap = await db().collection(COL.checkins).where('userId', '==', userId).get()
   // 同一場活動只算一次（報到文件本來就是一場一筆，這裡再保險一次）
   return new Set(snap.docs.map((d) => d.data().eventId as string)).size
+}
+
+/**
+ * 以票券代碼報到 —— 掃 QR 或工作人員手動輸入都走這裡。
+ *
+ * 代碼不分大小寫，也允許使用者念出來時夾雜空白或連字號。
+ */
+export async function checkInByCode(
+  eventId: string,
+  rawCode: string,
+  staffUid: string,
+): Promise<CheckinResult & { name?: string }> {
+  const code = String(rawCode || '').toUpperCase().replace(/[^0-9A-Z]/g, '')
+  if (code.length < 4) return { ok: false, error: '請輸入完整的票券代碼。' }
+
+  const snap = await db()
+    .collection(COL.registrations)
+    .where('eventId', '==', eventId)
+    .where('code', '==', code)
+    .limit(2)
+    .get()
+
+  if (snap.empty) return { ok: false, error: '查無此票券代碼，請確認是否為本場活動。' }
+  if (snap.size > 1) {
+    // 理論上不會發生（8 碼、31 種字元）。真的發生就別猜，改用姓名搜尋。
+    return { ok: false, error: '代碼重複，請改用姓名搜尋報到。' }
+  }
+
+  const doc = snap.docs[0]
+  const result = await checkIn(eventId, doc.id, staffUid)
+  return { ...result, name: (doc.data() as { name: string }).name }
 }

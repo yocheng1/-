@@ -174,3 +174,73 @@ body {
   @apply badge;
   color: rgba(244, 243, 239, 0.3);
 }
+
+/* ---------------------------------------------------------------- 儀式感
+   沿用原站的游標與捲動進度條。只在有滑鼠的裝置啟用。 */
+
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--color-red);
+  z-index: 400;
+  pointer-events: none;
+  transition: width 0.08s linear;
+}
+
+#cursor-dot,
+#cursor-ring {
+  display: none;
+}
+
+.has-custom-cursor,
+.has-custom-cursor a,
+.has-custom-cursor button,
+.has-custom-cursor input,
+.has-custom-cursor select,
+.has-custom-cursor textarea {
+  cursor: none;
+}
+
+.has-custom-cursor #cursor-dot {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-shell);
+  z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.has-custom-cursor #cursor-ring {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(244, 243, 239, 0.35);
+  border-radius: 50%;
+  z-index: 9998;
+  pointer-events: none;
+  transition: width 0.35s ease, height 0.35s ease, border-color 0.35s ease;
+}
+
+/* 滑到可點的東西上，游標圈放大 —— 原站的手法 */
+.has-custom-cursor body:has(a:hover) #cursor-ring,
+.has-custom-cursor body:has(button:hover) #cursor-ring {
+  width: 60px;
+  height: 60px;
+  border-color: var(--color-red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #scroll-progress { transition: none; }
+  .has-custom-cursor #cursor-ring { transition: none; }
+}

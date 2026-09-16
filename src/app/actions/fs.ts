@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth/session'
 import { registrationId } from '@/lib/firebase/admin'
-import { checkIn, undoCheckIn } from '@/lib/fs/checkin'
+import { checkIn, checkInByCode, undoCheckIn } from '@/lib/fs/checkin'
 import { createPrize, drawPrize, redrawWinner } from '@/lib/fs/draw'
 import { findEventById, findEventBySlug, saveEvent } from '@/lib/fs/events'
 import { cancelRegistration, createRegistration } from '@/lib/fs/registrations'
@@ -87,6 +87,26 @@ export async function checkInAction(formData: FormData): Promise<void> {
 
   await checkIn(eventId, regId, staff.id)
   revalidatePath(`/admin/checkin/${eventId}`)
+}
+
+/** 掃 QR 或手動輸入票券代碼報到。 */
+export async function checkInByCodeAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const staff = await requireStaff()
+  const eventId = String(formData.get('eventId') ?? '')
+  const code = String(formData.get('code') ?? '')
+
+  const result = await checkInByCode(eventId, code, staff.id)
+  if (!result.ok) return { error: result.error }
+
+  revalidatePath(`/admin/checkin/${eventId}`)
+  return {
+    message: result.alreadyCheckedIn
+      ? `${result.name ?? ''} 先前已經報到過了`
+      : `${result.name ?? ''} 報到成功`,
+  }
 }
 
 export async function undoCheckInAction(formData: FormData): Promise<void> {

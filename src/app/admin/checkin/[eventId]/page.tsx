@@ -34,6 +34,7 @@ export default async function CheckinPage({
           registrationId: r.registrationId,
           name: r.name,
           phone: r.phone,
+          code: r.code,
           status: r.status,
           checkedInAt: r.checkedInAt,
         }))}

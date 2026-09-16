@@ -1,12 +1,57 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
-import { checkInAction, undoCheckInAction } from '@/app/actions/fs'
+import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useFormStatus } from 'react-dom'
+import { checkInAction, checkInByCodeAction, undoCheckInAction } from '@/app/actions/fs'
+import { emptyFormState } from '@/app/actions/types'
+
+function CodeSubmit() {
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" className="btn-primary" disabled={pending}>
+      {pending ? '…' : '報到'}
+    </button>
+  )
+}
+
+/**
+ * 掃 QR 或手動輸入代碼。
+ *
+ * 手機的相機掃到 QR 後會把代碼填進這個欄位（多數掃碼 App 可直接貼上），
+ * 現場也可以請參加者念出票券上的 8 碼。
+ */
+function CodeEntry({ eventId }: { eventId: string }) {
+  const [state, action] = useActionState(checkInByCodeAction, emptyFormState)
+  const ref = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (state.message) ref.current?.reset()
+  }, [state.message])
+
+  return (
+    <form ref={ref} action={action} className="mb-4">
+      <input type="hidden" name="eventId" value={eventId} />
+      <div className="flex gap-2">
+        <input
+          name="code"
+          className="field flex-1 uppercase tracking-[0.2em]"
+          placeholder="掃 QR 或輸入票券代碼"
+          autoComplete="off"
+          autoCapitalize="characters"
+        />
+        <CodeSubmit />
+      </div>
+      {state.message && <p className="mt-2 text-sm text-shell">{state.message}</p>}
+      {state.error && <p className="mt-2 text-sm text-red">{state.error}</p>}
+    </form>
+  )
+}
 
 export type RosterRow = {
   registrationId: string
   name: string
   phone: string
+  code: string
   status: string
   checkedInAt: string | null
 }
@@ -26,8 +71,12 @@ export function Roster({ eventId, rows }: { eventId: string; rows: RosterRow[] }
   const visible = useMemo(() => {
     const q = filter.trim().toLowerCase()
     if (!q) return rows
+    // 姓名、電話、票券代碼都能搜
     return rows.filter(
-      (r) => r.name.toLowerCase().includes(q) || r.phone.includes(q.replace(/\D/g, '')),
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.phone.includes(q.replace(/\D/g, '')) ||
+        r.code.toLowerCase().includes(q),
     )
   }, [rows, filter])
 
@@ -52,6 +101,8 @@ export function Roster({ eventId, rows }: { eventId: string; rows: RosterRow[] }
         </p>
         {pending && <span className="micro text-dim">處理中…</span>}
       </div>
+
+      <CodeEntry eventId={eventId} />
 
       <input
         type="search"
@@ -78,7 +129,10 @@ export function Roster({ eventId, rows }: { eventId: string; rows: RosterRow[] }
                   {row.name}
                   {row.status === 'waitlist' && <span className="badge ml-2">候補</span>}
                 </p>
-                <p className="mt-0.5 mono text-xs text-dim">{maskPhone(row.phone)}</p>
+                <p className="mt-0.5 mono text-xs text-dim">
+                  {maskPhone(row.phone)}
+                  {row.code && <span className="ml-2 text-faint">{row.code}</span>}
+                </p>
               </div>
 
               {row.checkedInAt ? (

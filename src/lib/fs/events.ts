@@ -106,6 +106,8 @@ export type MyRegistration = {
   status: string
   name: string
   phone: string
+  /** 票券短代碼，QR 編的就是這個 */
+  code: string
   createdAt: string
   checkedInAt: string | null
   event: EventRecord | null
@@ -143,6 +145,7 @@ export async function listMyRegistrations(userId: string): Promise<MyRegistratio
         status: String(data.status),
         name: String(data.name),
         phone: String(data.phone),
+        code: String(data.code ?? ''),
         createdAt: String(data.createdAt),
         checkedInAt: checkedIn.get(d.id) ?? null,
         event: events.get(String(data.eventId)) ?? null,
@@ -168,6 +171,7 @@ export async function findRegistration(registrationId: string): Promise<MyRegist
     status: String(data.status),
     name: String(data.name),
     phone: String(data.phone),
+    code: String(data.code ?? ''),
     createdAt: String(data.createdAt),
     checkedInAt: checkin.exists ? (checkin.data()!.checkedInAt as string) : null,
     event,
