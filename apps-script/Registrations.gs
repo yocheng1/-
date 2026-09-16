@@ -74,6 +74,32 @@ function getAvailability_(event, allRegistrations) {
   };
 }
 
+/**
+ * 只讀「eventId / userId / status」三個欄位的輕量索引。
+ *
+ * 報名決策其實只需要這三個值，但 tableRead_ 會把整張表（十幾個欄位、
+ * 含備註等長文字）全部拉回來。報名表這三欄剛好相鄰，一次 getRange 就能取得，
+ * 傳輸量小一個數量級 —— 而這段是包在鎖裡的，每快一點，尖峰時能服務的人就多一些。
+ */
+function readRegistrationIndex_() {
+  const headers = SCHEMA[SHEET_REGISTRATIONS];
+  const startCol = headers.indexOf('eventId');
+  const sheet = getSheet_(SHEET_REGISTRATIONS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  // eventId, userId, status 三欄相鄰
+  const values = sheet.getRange(2, startCol + 1, lastRow - 1, 3).getValues();
+
+  return values.map(function (row) {
+    return {
+      eventId: String(row[0] || ''),
+      userId: String(row[1] || ''),
+      status: String(row[2] || ''),
+    };
+  });
+}
+
 function findActiveRegistration_(eventId, userId) {
   const row = tableFindOne_(SHEET_REGISTRATIONS, function (r) {
     return r.eventId === eventId && r.userId === userId && r.status !== 'cancelled';
@@ -102,9 +128,10 @@ function createRegistration_(event, userId, input) {
       return { ok: false, error: '目前無法報名：' + REGISTRATION_WINDOW_LABEL[window] + '。' };
     }
 
-    const all = tableRead_(SHEET_REGISTRATIONS);
+    // 決策只需要 eventId / userId / status 三欄，不必把整張表拉回來
+    const index = readRegistrationIndex_();
 
-    const duplicate = all.some(function (r) {
+    const duplicate = index.some(function (r) {
       return r.eventId === event.id && r.userId === userId && r.status !== 'cancelled';
     });
     if (duplicate) {
@@ -115,11 +142,11 @@ function createRegistration_(event, userId, input) {
 
     if (event.allocationMode === ALLOCATION_LOTTERY) {
       // 抽籤：報名期間一律先登記，截止後才由管理員抽出錄取名單。
-      // 這裡不需要數人數，也不需要判斷名額 —— 少掉的正是先到先得最花時間的那一段。
+      // 少掉「數目前有幾個人錄取」這段，鎖裡要做的事更少。
       status = 'entered';
     } else {
       let confirmed = 0;
-      all.forEach(function (r) {
+      index.forEach(function (r) {
         if (r.eventId === event.id && r.status === 'confirmed') confirmed++;
       });
 
