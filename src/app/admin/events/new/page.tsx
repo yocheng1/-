@@ -1,16 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { EventForm } from '@/app/admin/event-form'
+import { EventForm } from '../event-form'
 
-export const metadata: Metadata = { title: '新增活動' }
+export const metadata: Metadata = { title: 'Create Event' }
 
 export default function NewEventPage() {
   return (
-    <div>
-      <Link href="/admin" className="mb-4 inline-block text-sm text-dim hover:text-shell">
-        ← 回後台
-      </Link>
-      <h1 className="mb-6 text-3xl display tracking-tight text-shell">新增活動</h1>
+    <div className="max-w-2xl">
+      <Link href="/admin/events" className="mb-4 inline-block micro text-dim hover:text-shell">← Events</Link>
+      <h1 className="display mb-6 text-2xl">新增活動</h1>
       <EventForm />
     </div>
   )

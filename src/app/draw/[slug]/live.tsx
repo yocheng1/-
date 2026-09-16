@@ -1,176 +1,159 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { clientDb } from '@/lib/firebase/client'
 
 type Prize = {
   id: string
   name: string
-  description: string
   quantity: number
   isBonus: boolean
   drawnAt: string | null
-  drawSeed: string | null
+  sortOrder: number
 }
 
-type Winner = { id: string; prizeId: string; name: string; phone: string; rank: number }
+type Winner = { id: string; prizeId: string; name: string; maskedPhone: string; rank: number }
 
-type State = {
-  event: { id: string; slug: string; title: string }
-  remaining: number
-  prizes: Prize[]
-  winners: Winner[]
-}
+/**
+ * 現場大螢幕。
+ *
+ * 直接訂閱 Firestore，主持人一抽完，所有人的畫面就自己更新 ——
+ * 中間不經過我們的伺服器，所以幾百人同時看也不會塞住。
+ */
+export function LiveDraw({
+  eventId,
+  title,
+  initialPrizes,
+  initialWinners,
+}: {
+  eventId: string
+  title: string
+  initialPrizes: Prize[]
+  initialWinners: Winner[]
+}) {
+  const [prizes, setPrizes] = useState(initialPrizes)
+  const [winners, setWinners] = useState(initialWinners)
+  const [live, setLive] = useState(false)
+  const [suspense, setSuspense] = useState(false)
+  const [flash, setFlash] = useState('')
+  const [bonus, setBonus] = useState<string | null>(null)
 
-type Connection = 'connecting' | 'live' | 'reconnecting'
+  const knownPrizes = useRef(new Set(initialPrizes.map((p) => p.id)))
+  const winnerCount = useRef(initialWinners.length)
 
-export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
-  const [state, setState] = useState<State>(initial)
-  const [connection, setConnection] = useState<Connection>('connecting')
-  // 抽獎揭曉前的懸疑動畫
-  const [suspensePrizeId, setSuspensePrizeId] = useState<string | null>(null)
-  const [flashName, setFlashName] = useState('')
-  const [bonusAlert, setBonusAlert] = useState<string | null>(null)
-
-  const stateRef = useRef(state)
-  stateRef.current = state
-
-  const refresh = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/draw/${slug}/state`, { cache: 'no-store' })
-      if (res.ok) setState(await res.json())
-    } catch {
-      // 網路瞬斷，等下一次事件或心跳
-    }
-  }, [slug])
-
-  // ---------------------------------------------------------- 即時連線
   useEffect(() => {
-    const source = new EventSource(`/api/draw/${slug}/stream`)
+    const db = clientDb()
 
-    source.onopen = () => setConnection('live')
-    source.onerror = () => setConnection('reconnecting') // EventSource 會自動重連
+    const unsubPrizes = onSnapshot(
+      query(collection(db, 'prizes'), where('eventId', '==', eventId)),
+      (snap) => {
+        setLive(true)
+        const rows = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Prize, 'id'>) }))
+        rows.sort((a, b) => a.sortOrder - b.sortOrder)
 
-    source.onmessage = (message) => {
-      let payload: { type: string; prizeId?: string; isBonus?: boolean }
-      try {
-        payload = JSON.parse(message.data)
-      } catch {
-        return
-      }
-
-      if (payload.type === 'hello') {
-        setConnection('live')
-        return
-      }
-
-      if (payload.type === 'drawn' && payload.prizeId) {
-        // 先跑 2.2 秒的滾動動畫再揭曉，現場才有戲劇效果
-        setSuspensePrizeId(payload.prizeId)
-        setTimeout(() => {
-          setSuspensePrizeId(null)
-          void refresh()
-        }, 2200)
-        return
-      }
-
-      if (payload.type === 'prize-added' && payload.isBonus) {
-        void refresh().then(() => {
-          const prize = stateRef.current.prizes.find((p) => p.id === payload.prizeId)
-          setBonusAlert(prize?.name ?? '加碼獎項')
-          setTimeout(() => setBonusAlert(null), 6000)
+        // 新出現的加碼獎項 → 跳出快報
+        rows.forEach((prize) => {
+          if (!knownPrizes.current.has(prize.id)) {
+            knownPrizes.current.add(prize.id)
+            if (prize.isBonus) {
+              setBonus(prize.name)
+              setTimeout(() => setBonus(null), 6000)
+            }
+          }
         })
-        return
-      }
 
-      void refresh()
+        setPrizes(rows)
+      },
+      () => setLive(false),
+    )
+
+    const unsubWinners = onSnapshot(
+      query(collection(db, 'winners'), where('eventId', '==', eventId)),
+      (snap) => {
+        setLive(true)
+        const rows = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Winner, 'id'>) }))
+
+        // 有新中獎者 → 先跑懸疑動畫再揭曉
+        if (rows.length > winnerCount.current) {
+          setSuspense(true)
+          setTimeout(() => {
+            setSuspense(false)
+            setWinners(rows)
+          }, 2200)
+        } else {
+          setWinners(rows)
+        }
+        winnerCount.current = rows.length
+      },
+      () => setLive(false),
+    )
+
+    return () => {
+      unsubPrizes()
+      unsubWinners()
     }
+  }, [eventId])
 
-    return () => source.close()
-  }, [slug, refresh])
-
-  // 動畫期間快速輪播名字
   useEffect(() => {
-    if (!suspensePrizeId) return
-    const names = state.winners.map((w) => w.name)
-    const pool = names.length > 0 ? names : ['？？？', '○○○', '☆☆☆']
-
+    if (!suspense) return
+    const pool = winners.map((w) => w.name)
+    const names = pool.length > 0 ? pool : ['？？？', '○○○', '☆☆☆']
     const timer = setInterval(() => {
-      setFlashName(pool[Math.floor(Math.random() * pool.length)])
+      setFlash(names[Math.floor(Math.random() * names.length)])
     }, 80)
-
     return () => clearInterval(timer)
-  }, [suspensePrizeId, state.winners])
+  }, [suspense, winners])
 
-  const winnersFor = (prizeId: string) =>
-    state.winners.filter((w) => w.prizeId === prizeId).sort((a, b) => a.rank - b.rank)
-
-  const drawn = state.prizes.filter((p) => p.drawnAt)
+  const drawn = useMemo(() => prizes.filter((p) => p.drawnAt), [prizes])
+  const pending = useMemo(() => prizes.filter((p) => !p.drawnAt), [prizes])
   const latest = drawn[drawn.length - 1]
-  const pending = state.prizes.filter((p) => !p.drawnAt)
+  const winnersFor = (prizeId: string) =>
+    winners.filter((w) => w.prizeId === prizeId).sort((a, b) => a.rank - b.rank)
 
   return (
     <div className="mx-auto w-full max-w-3xl">
-      {/* 加碼快報 */}
-      {bonusAlert && (
-        <div
-          className="mb-6 border border-shell bg-shell px-5 py-5 text-center text-ink"
-          role="status"
-        >
+      {bonus && (
+        <div className="mb-6 border border-shell bg-shell px-5 py-5 text-center text-ink" role="status">
           <p className="micro animate-pulse opacity-60">加碼獎項登場</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight">{bonusAlert}</p>
+          <p className="display mt-2 text-2xl">{bonus}</p>
         </div>
       )}
 
       <header className="mb-6 text-center">
-        <h1 className="text-2xl display sm:text-3xl">
-          {state.event.title}
-        </h1>
-        <p className="mt-3 flex flex-wrap items-center justify-center gap-2 micro text-dim">
+        <h1 className="display text-2xl sm:text-3xl">{title}</h1>
+        <p className="mt-3 flex items-center justify-center gap-2 micro text-dim">
           <span
-            className={`inline-block size-2 rounded-full ${
-              connection === 'live' ? 'bg-shell' : 'bg-white/35 animate-pulse'
-            }`}
+            className={`inline-block size-2 rounded-full ${live ? 'bg-red' : 'bg-white/35 animate-pulse'}`}
             aria-hidden="true"
           />
-          {connection === 'live' ? '連線中，結果會自動更新' : '連線中斷，重新連線中…'}
-          <span className="text-faint">·</span>
-          尚未中獎 {state.remaining} 人
+          {live ? '連線中，結果會自動更新' : '連線中…'}
         </p>
       </header>
 
-      {/* 最新開出的獎項 */}
       <section className="card overflow-hidden">
-        {suspensePrizeId ? (
-          <div className="bg-transparent/10 px-6 py-14 text-center text-white">
-            <p className="text-sm font-bold tracking-[0.3em] opacity-80">抽獎中</p>
-            <p className="mt-4 text-4xl font-black tabular-nums sm:text-5xl">
-              {flashName || '···'}
-            </p>
+        {suspense ? (
+          <div className="px-6 py-20 text-center">
+            <p className="micro-lg animate-pulse text-dim">Drawing</p>
+            <p className="display mt-6 text-4xl sm:text-6xl">{flash || '···'}</p>
           </div>
         ) : latest ? (
           <div className="px-6 py-10 text-center">
-            {latest.isBonus && (
-              <span className="mb-3 inline-block badge-on">
-                加碼獎項
-              </span>
-            )}
+            {latest.isBonus && <span className="badge-on mb-3 inline-block">加碼獎項</span>}
             <p className="micro-lg text-dim">Winner</p>
-            <h2 className="mt-2 text-xl display">{latest.name}</h2>
+            <h2 className="display mt-2 text-xl">{latest.name}</h2>
 
             <ul className="mt-6 flex flex-wrap justify-center gap-3">
-              {winnersFor(latest.id).map((winner) => (
-                <li
-                  key={winner.id}
-                  className="rounded-xl border hairline bg-transparent/5 px-5 py-3"
-                >
-                  <p className="text-xl font-black text-shell">{winner.name}</p>
-                  <p className="mt-0.5 font-mono text-xs text-dim">{winner.phone}</p>
+              {winnersFor(latest.id).map((w) => (
+                <li key={w.id} className="border border-white/25 px-7 py-5">
+                  <p className="display text-2xl sm:text-3xl">{w.name}</p>
+                  <p className="mt-1.5 mono text-xs text-faint">{w.maskedPhone}</p>
                 </li>
               ))}
             </ul>
           </div>
         ) : (
-          <div className="px-6 py-14 text-center">
+          <div className="px-6 py-16 text-center">
             <p className="micro-lg text-dim">Standing by</p>
             <p className="mt-4 text-lg">抽獎即將開始</p>
             <p className="mt-1.5 text-sm text-faint">請留在這個畫面，結果會自動跳出來</p>
@@ -178,47 +161,35 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
         )}
       </section>
 
-      {/* 即將抽出的獎項（加碼獎項在新增前不會出現在這裡） */}
       {pending.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 micro text-faint">尚未抽出</h2>
           <ul className="flex flex-wrap gap-2">
-            {pending.map((prize) => (
-              <li
-                key={prize.id}
-                className="border hairline px-3.5 py-2 text-sm"
-              >
-                <span className="font-semibold text-shell">{prize.name}</span>
-                <span className="ml-1.5 text-faint">{prize.quantity} 位</span>
+            {pending.map((p) => (
+              <li key={p.id} className="border hairline px-3.5 py-2 text-sm">
+                <span className="font-semibold">{p.name}</span>
+                <span className="ml-1.5 text-faint">{p.quantity} 位</span>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      {/* 歷史紀錄 */}
       {drawn.length > 1 && (
         <section className="mt-8">
           <h2 className="mb-3 micro text-faint">已公布名單</h2>
           <ul className="space-y-3">
-            {drawn
-              .slice(0, -1)
-              .reverse()
-              .map((prize) => (
-                <li key={prize.id} className="card p-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="display text-shell">{prize.name}</h3>
-                    {prize.isBonus && (
-                      <span className="badge-on">
-                        加碼
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1.5 text-shell">
-                    {winnersFor(prize.id).map((w) => w.name).join('、') || '—'}
-                  </p>
-                </li>
-              ))}
+            {drawn.slice(0, -1).reverse().map((prize) => (
+              <li key={prize.id} className="card p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="display text-base">{prize.name}</h3>
+                  {prize.isBonus && <span className="badge-on">加碼</span>}
+                </div>
+                <p className="mt-1.5 text-dim">
+                  {winnersFor(prize.id).map((w) => w.name).join('、') || '—'}
+                </p>
+              </li>
+            ))}
           </ul>
         </section>
       )}

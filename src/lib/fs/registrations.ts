@@ -225,11 +225,12 @@ export const WINDOW_LABEL: Record<RegistrationWindow, string> = {
 }
 
 export function registrationWindow(
+  // Firestore 的空值慣例是 null，所以這裡兩種都接受
   event: {
     status: string
-    endsAt?: string
-    registrationOpensAt?: string
-    registrationClosesAt?: string
+    endsAt?: string | null
+    registrationOpensAt?: string | null
+    registrationClosesAt?: string | null
   },
   now: Date = new Date(),
 ): RegistrationWindow {
