@@ -2,6 +2,9 @@
  * 刪掉本機資料庫檔案，下次啟動時會依 db/schema.sql 重建。
  * 執行：npm run db:reset
  */
+// 必須放在其他 import 之前：後面的模組會讀 process.env
+import './load-env.ts'
+
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 

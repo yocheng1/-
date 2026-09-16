@@ -6,14 +6,33 @@ KPlus 安全帽的活動報名平台：會員登入、瀏覽活動、線上報�
 
 ---
 
-## 快速開始
+## 在自己的電腦上跑起來
+
+### 事前準備
+
+只需要 **Node.js 20.9 以上**（建議 22 LTS）。不用另外安裝資料庫 —— 資料存在專案裡的 SQLite 檔案。
+
+到 <https://nodejs.org> 下載 LTS 版安裝，然後確認版本：
 
 ```bash
-npm install
-cp .env.example .env.local
-npm run db:seed      # 建立示範活動與管理員帳號
-npm run dev          # http://localhost:3000
+node -v    # 要 v20.9.0 以上
 ```
+
+### 安裝與啟動
+
+Windows（PowerShell 或 CMD）、macOS、Linux 指令都一樣：
+
+```bash
+git clone https://github.com/yocheng1/-.git kplus-events
+cd kplus-events
+git checkout claude/kplus-login-event-signup-l7kdi6
+
+npm install
+npm run setup     # 建立 .env.local + 示範資料（可重複執行）
+npm run dev
+```
+
+然後開 <http://localhost:3000>。
 
 示範管理員帳號：
 
@@ -22,6 +41,20 @@ npm run dev          # http://localhost:3000
 | `admin@kplushelmet.com` | `kplus2026admin` |
 
 > 管理員權限是看 `.env.local` 的 `ADMIN_EMAILS`。清單中的 Email 註冊或登入後會自動成為管理員。
+
+手機驗證碼登入不需要真的簡訊服務：開發模式下驗證碼會**直接顯示在畫面上**
+（同時也印在終端機）。正式環境會自動關閉這個行為。
+
+### 疑難排解
+
+| 狀況 | 原因與解法 |
+| --- | --- |
+| `npm install` 卡在 `better-sqlite3` 或出現編譯錯誤 | 它是原生模組。Windows 請安裝 [VS Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 的「C++ 桌面開發」；macOS 執行 `xcode-select --install`。多數情況會直接下載預編譯檔，不會走到編譯。 |
+| `Error: listen EADDRINUSE :::3000` | 3000 埠被占用。改用其他埠：`npm run dev -- -p 3001` |
+| 畫面顯示的資料跟預期不符，或改了 `.env.local` 沒生效 | 重啟開發伺服器（Ctrl+C 後重跑 `npm run dev`）。 |
+| 執行 `npm run db:reset` 後畫面還是舊資料 | 一併重啟開發伺服器 —— SQLite 連線是啟動時建立的，檔案刪掉後伺服器仍會寫入那個已不存在的舊檔案。 |
+| 想把資料整個清掉重來 | `npm run db:reset` 然後 `npm run db:seed`，再重啟伺服器。 |
+| `bad option: --env-file-if-exists` | 這是舊版本的問題，已修掉。請 `git pull` 取得最新的 commit。 |
 
 ---
 
@@ -114,6 +147,7 @@ CREATE UNIQUE INDEX idx_registrations_active_unique
 ## 指令
 
 ```bash
+npm run setup      # 首次設定：建立 .env.local + 示範資料
 npm run dev        # 開發伺服器
 npm run build      # 正式版建置
 npm start          # 執行建置後的版本

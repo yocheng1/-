@@ -2,6 +2,9 @@
  * 建立示範資料：一位管理員、幾場不同狀態的活動，以及一些報名紀錄。
  * 執行：npm run db:seed
  */
+// 必須放在其他 import 之前：後面的模組會讀 process.env
+import './load-env.ts'
+
 import { createEvent, findEventBySlug } from '../src/lib/repo/events.ts'
 import { createRegistration } from '../src/lib/repo/registrations.ts'
 import {

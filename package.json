@@ -9,9 +9,10 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:reset": "tsx --env-file-if-exists=.env.local scripts/reset-db.ts",
-    "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
-    "test": "tsx --test tests/*.test.ts"
+    "db:reset": "tsx scripts/reset-db.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "test": "node scripts/run-tests.mjs",
+    "setup": "node scripts/init-env.mjs && npm run db:seed"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",
@@ -30,5 +31,8 @@
     "tailwindcss": "^4.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }
