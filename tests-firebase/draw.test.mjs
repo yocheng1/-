@@ -18,6 +18,8 @@ async function eventWithAttendees(n) {
   await firestore.collection(COL.events).doc(id).set({
     title: '抽獎測試', slug: id, status: 'published',
     capacity: 0, waitlistEnabled: false, confirmedCount: 0, waitlistCount: 0,
+    // 本套件驗證抽獎機制本身；「只抽已報到」的行為由 flow.test.mjs 覆蓋
+    drawPool: 'all',
     startsAt: new Date(Date.now() + 3600000).toISOString(),
     endsAt: new Date(Date.now() + 7200000).toISOString(),
   })
@@ -137,6 +139,7 @@ describe('Firestore 現場抽獎', () => {
     await firestore.collection(COL.events).doc(eventId).set({
       title: '限額', slug: eventId, status: 'published',
       capacity: 2, waitlistEnabled: true, confirmedCount: 0, waitlistCount: 0,
+      drawPool: 'all',
       startsAt: new Date(Date.now() + 3600000).toISOString(),
       endsAt: new Date(Date.now() + 7200000).toISOString(),
     })

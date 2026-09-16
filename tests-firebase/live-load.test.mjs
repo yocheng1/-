@@ -34,6 +34,7 @@ describe('現場 100 人同時觀看', () => {
     await admin.collection(COL.events).doc(eventId).set({
       title: '現場抽獎壓測', slug: eventId, status: 'published',
       capacity: 0, waitlistEnabled: false, confirmedCount: 0, waitlistCount: 0,
+      drawPool: 'all',
       startsAt: new Date(Date.now() + 3600000).toISOString(),
       endsAt: new Date(Date.now() + 7200000).toISOString(),
     })

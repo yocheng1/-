@@ -56,25 +56,59 @@ export async function createPrize(
   return { id: ref.id, ...prize }
 }
 
-/** 還沒中過獎的參加者 —— 一場活動每人最多中一次。 */
+/**
+ * 抽獎的候選池來源。
+ *
+ * checked_in（預設）：只抽「現場已報到」的人。
+ *   現場抽獎務必用這個 —— 否則會抽到報名了但沒來的人，
+ *   主持人喊了名字沒人回應，還得重抽。
+ * all：所有報名成功的人。線上抽獎、不需到場的活動才用。
+ */
+export type DrawPool = 'checked_in' | 'all'
+
+export type EligibleEntry = { registrationId: string; name: string; phone: string }
+
+/** 這場活動要從哪個池子抽。活動沒設定時預設只抽已報到的人。 */
+async function drawPoolOf(eventId: string): Promise<DrawPool> {
+  const snap = await db().collection(COL.events).doc(eventId).get()
+  const value = snap.data()?.drawPool
+  return value === 'all' ? 'all' : 'checked_in'
+}
+
+/**
+ * 還沒中過獎的候選者 —— 一場活動每人最多中一次。
+ *
+ * pool 省略時會去讀活動自己的設定，而不是套一個固定預設值。
+ * 這很重要：如果這裡預設 checked_in、drawPrize 卻讀活動設定，
+ * 兩邊就會給出不同的名單，後台顯示的人數會跟實際抽出來的對不起來。
+ */
 export async function listEligible(
   eventId: string,
-): Promise<{ registrationId: string; name: string; phone: string }[]> {
+  pool?: DrawPool,
+): Promise<EligibleEntry[]> {
+  const mode = pool ?? (await drawPoolOf(eventId))
   const firestore = db()
 
-  const [regs, winners] = await Promise.all([
+  const [regs, winners, checkins] = await Promise.all([
     firestore
       .collection(COL.registrations)
       .where('eventId', '==', eventId)
       .where('status', '==', 'confirmed')
       .get(),
     firestore.collection(COL.winners).where('eventId', '==', eventId).get(),
+    mode === 'checked_in'
+      ? firestore.collection(COL.checkins).where('eventId', '==', eventId).get()
+      : Promise.resolve(null),
   ])
 
   const alreadyWon = new Set(winners.docs.map((d) => d.data().registrationId as string))
+  const checkedIn = checkins
+    ? new Set(checkins.docs.map((d) => d.data().registrationId as string))
+    : null
 
   return regs.docs
     .filter((d) => !alreadyWon.has(d.id))
+    .filter((d) => (checkedIn ? checkedIn.has(d.id) : true))
     .map((d) => {
       const data = d.data() as { name: string; phone: string }
       return { registrationId: d.id, name: data.name, phone: data.phone }
@@ -106,8 +140,22 @@ export async function drawPrize(prizeId: string): Promise<DrawResult> {
   if (prize.drawnAt) return { ok: false, error: '這個獎項已經抽過了。' }
 
   // 查詢不能放在交易裡，所以先取候選名單
-  const pool = await listEligible(prize.eventId)
+  const poolMode = await drawPoolOf(prize.eventId)
+  const pool = await listEligible(prize.eventId, poolMode)
+
   if (pool.length === 0) {
+    // 分辨「沒人報到」與「大家都中過了」—— 這兩種情況主持人要做的事完全不同
+    if (poolMode === 'checked_in') {
+      const everyone = await listEligible(prize.eventId, 'all')
+      if (everyone.length > 0) {
+        return {
+          ok: false,
+          error:
+            `目前還沒有人完成報到，所以沒有人可以抽。` +
+            `請先在報到頁完成報到；若這場活動不需要到場，請把抽獎對象改為「所有報名者」。`,
+        }
+      }
+    }
     return { ok: false, error: '沒有可抽獎的參加者了（所有人都已中獎或沒有人報名）。' }
   }
 
@@ -214,5 +262,88 @@ export async function verifyPrizeDraw(prizeId: string): Promise<{
     seed: prize.drawSeed,
     expected,
     actual,
+  }
+}
+
+export type RedrawResult =
+  | { ok: true; replaced: Winner; removedRegistrationId: string }
+  | { ok: false; error: string }
+
+/**
+ * 補抽：中獎者不在現場時，把該名額讓給另一位。
+ *
+ * 只換掉這一個名額，其他中獎者不受影響（整個獎項重抽會讓已經領到獎的人白高興一場）。
+ * 被換掉的人不會回到候選池 —— 人不在現場，再抽到還是一樣的問題。
+ */
+export async function redrawWinner(winnerDocId: string): Promise<RedrawResult> {
+  const firestore = db()
+  const winnerRef = firestore.collection(COL.winners).doc(winnerDocId)
+
+  const snap = await winnerRef.get()
+  if (!snap.exists) return { ok: false, error: '找不到這筆中獎紀錄。' }
+
+  const current = snap.data() as {
+    eventId: string
+    prizeId: string
+    registrationId: string
+    rank: number
+  }
+
+  const poolMode = await drawPoolOf(current.eventId)
+  const pool = await listEligible(current.eventId, poolMode)
+  if (pool.length === 0) {
+    return { ok: false, error: '沒有其他可遞補的參加者了。' }
+  }
+
+  const seed = randomBytes(16).toString('hex')
+  const picked = pool
+    .map((entry) => ({
+      entry,
+      key: createHash('sha256').update(`${seed}:${entry.registrationId}`).digest('hex'),
+    }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))[0].entry
+
+  const now = new Date().toISOString()
+  const newId = winnerId(current.eventId, picked.registrationId)
+
+  try {
+    await firestore.runTransaction(async (tx) => {
+      const fresh = await tx.get(winnerRef)
+      if (!fresh.exists) throw new Error('GONE')
+
+      tx.delete(winnerRef)
+      tx.create(firestore.collection(COL.winners).doc(newId), {
+        eventId: current.eventId,
+        prizeId: current.prizeId,
+        registrationId: picked.registrationId,
+        name: picked.name,
+        maskedPhone: maskPhone(picked.phone),
+        rank: current.rank,
+        createdAt: now,
+        // 留下補抽紀錄，事後對帳查得到這個名額換過人
+        replacedRegistrationId: current.registrationId,
+        redrawSeed: seed,
+      })
+    })
+
+    return {
+      ok: true,
+      removedRegistrationId: current.registrationId,
+      replaced: {
+        id: newId,
+        eventId: current.eventId,
+        prizeId: current.prizeId,
+        registrationId: picked.registrationId,
+        name: picked.name,
+        maskedPhone: maskPhone(picked.phone),
+        rank: current.rank,
+      },
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message === 'GONE') {
+      return { ok: false, error: '這筆中獎紀錄已經被異動過了，請重新整理。' }
+    }
+    console.error('[draw] 補抽失敗：', error)
+    return { ok: false, error: '補抽失敗，請稍後再試。' }
   }
 }
