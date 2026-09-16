@@ -113,27 +113,27 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
       {/* 加碼快報 */}
       {bonusAlert && (
         <div
-          className="mb-5 animate-pulse rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-4 text-center text-white shadow-lg"
+          className="mb-6 border border-paper bg-paper px-5 py-5 text-center text-ink"
           role="status"
         >
-          <p className="text-sm font-bold tracking-widest">加碼獎項登場</p>
-          <p className="mt-1 text-2xl font-black">{bonusAlert}</p>
+          <p className="micro animate-pulse opacity-60">加碼獎項登場</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight">{bonusAlert}</p>
         </div>
       )}
 
       <header className="mb-6 text-center">
-        <h1 className="text-3xl font-black tracking-tight text-ink sm:text-4xl">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           {state.event.title}
         </h1>
-        <p className="mt-2 flex items-center justify-center gap-2 text-sm text-slate-500">
+        <p className="mt-3 flex flex-wrap items-center justify-center gap-2 micro text-dim">
           <span
             className={`inline-block size-2 rounded-full ${
-              connection === 'live' ? 'bg-emerald-500' : 'bg-amber-500'
+              connection === 'live' ? 'bg-paper' : 'bg-white/35 animate-pulse'
             }`}
             aria-hidden="true"
           />
           {connection === 'live' ? '連線中，結果會自動更新' : '連線中斷，重新連線中…'}
-          <span className="text-slate-300">·</span>
+          <span className="text-faint">·</span>
           尚未中獎 {state.remaining} 人
         </p>
       </header>
@@ -141,7 +141,7 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
       {/* 最新開出的獎項 */}
       <section className="card overflow-hidden">
         {suspensePrizeId ? (
-          <div className="bg-brand-600 px-6 py-14 text-center text-white">
+          <div className="bg-transparent/10 px-6 py-14 text-center text-white">
             <p className="text-sm font-bold tracking-[0.3em] opacity-80">抽獎中</p>
             <p className="mt-4 text-4xl font-black tabular-nums sm:text-5xl">
               {flashName || '···'}
@@ -150,29 +150,30 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
         ) : latest ? (
           <div className="px-6 py-10 text-center">
             {latest.isBonus && (
-              <span className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+              <span className="mb-3 inline-block badge-on">
                 加碼獎項
               </span>
             )}
-            <p className="text-sm font-semibold tracking-widest text-slate-400">恭喜中獎</p>
-            <h2 className="mt-1 text-2xl font-black text-brand-700">{latest.name}</h2>
+            <p className="micro-lg text-dim">Winner</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-tight">{latest.name}</h2>
 
             <ul className="mt-6 flex flex-wrap justify-center gap-3">
               {winnersFor(latest.id).map((winner) => (
                 <li
                   key={winner.id}
-                  className="rounded-xl border border-brand-200 bg-brand-50 px-5 py-3"
+                  className="rounded-xl border hairline bg-transparent/5 px-5 py-3"
                 >
-                  <p className="text-xl font-black text-ink">{winner.name}</p>
-                  <p className="mt-0.5 font-mono text-xs text-slate-500">{winner.phone}</p>
+                  <p className="text-xl font-black text-paper">{winner.name}</p>
+                  <p className="mt-0.5 font-mono text-xs text-dim">{winner.phone}</p>
                 </li>
               ))}
             </ul>
           </div>
         ) : (
           <div className="px-6 py-14 text-center">
-            <p className="text-lg font-semibold text-slate-600">抽獎即將開始</p>
-            <p className="mt-1 text-sm text-slate-400">請留在這個畫面，結果會自動跳出來</p>
+            <p className="micro-lg text-dim">Standing by</p>
+            <p className="mt-4 text-lg">抽獎即將開始</p>
+            <p className="mt-1.5 text-sm text-faint">請留在這個畫面，結果會自動跳出來</p>
           </div>
         )}
       </section>
@@ -180,15 +181,15 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
       {/* 即將抽出的獎項（加碼獎項在新增前不會出現在這裡） */}
       {pending.length > 0 && (
         <section className="mt-6">
-          <h2 className="mb-2 text-sm font-bold tracking-wider text-slate-400">尚未抽出</h2>
+          <h2 className="mb-3 micro text-faint">尚未抽出</h2>
           <ul className="flex flex-wrap gap-2">
             {pending.map((prize) => (
               <li
                 key={prize.id}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+                className="border hairline px-3.5 py-2 text-sm"
               >
-                <span className="font-semibold text-slate-700">{prize.name}</span>
-                <span className="ml-1.5 text-slate-400">{prize.quantity} 位</span>
+                <span className="font-semibold text-paper">{prize.name}</span>
+                <span className="ml-1.5 text-faint">{prize.quantity} 位</span>
               </li>
             ))}
           </ul>
@@ -198,7 +199,7 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
       {/* 歷史紀錄 */}
       {drawn.length > 1 && (
         <section className="mt-8">
-          <h2 className="mb-3 text-sm font-bold tracking-wider text-slate-400">已公布名單</h2>
+          <h2 className="mb-3 micro text-faint">已公布名單</h2>
           <ul className="space-y-3">
             {drawn
               .slice(0, -1)
@@ -206,14 +207,14 @@ export function LiveDraw({ slug, initial }: { slug: string; initial: State }) {
               .map((prize) => (
                 <li key={prize.id} className="card p-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-bold text-ink">{prize.name}</h3>
+                    <h3 className="font-bold text-paper">{prize.name}</h3>
                     {prize.isBonus && (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                      <span className="badge-on">
                         加碼
                       </span>
                     )}
                   </div>
-                  <p className="mt-1.5 text-slate-700">
+                  <p className="mt-1.5 text-paper">
                     {winnersFor(prize.id).map((w) => w.name).join('、') || '—'}
                   </p>
                 </li>

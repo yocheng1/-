@@ -23,14 +23,14 @@ function SubmitButton({ children }: { children: React.ReactNode }) {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
-  return <p className="mt-1 text-sm text-red-600">{message}</p>
+  return <p className="mt-1 text-sm text-red-400">{message}</p>
 }
 
 function Alert({ kind, children }: { kind: 'error' | 'info'; children: React.ReactNode }) {
   const styles =
     kind === 'error'
-      ? 'border-red-200 bg-red-50 text-red-700'
-      : 'border-brand-200 bg-brand-50 text-brand-800'
+      ? 'border-red-500/30 bg-red-500/10 text-red-300'
+      : 'hairline bg-transparent/5 text-paper'
   return (
     // 錯誤才用 alert（螢幕閱讀器會打斷朗讀）；一般提示用 status 就好
     <div
@@ -77,7 +77,7 @@ function OtpPanel({ redirectTo }: { redirectTo: string }) {
         {requestState.error && <Alert kind="error">{requestState.error}</Alert>}
 
         <SubmitButton>傳送驗證碼</SubmitButton>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-dim">
           第一次使用手機號碼登入時，系統會自動為您建立帳號。
         </p>
       </form>
@@ -106,7 +106,7 @@ function OtpPanel({ redirectTo }: { redirectTo: string }) {
           required
         />
         <FieldError message={state.fieldErrors?.code} />
-        <p className="mt-1.5 text-xs text-slate-500">
+        <p className="mt-1.5 text-xs text-dim">
           已傳送至 {phone?.replace('+886', '0')}
         </p>
       </div>
@@ -124,7 +124,7 @@ function OtpPanel({ redirectTo }: { redirectTo: string }) {
       <button
         type="button"
         onClick={() => window.location.reload()}
-        className="w-full text-center text-sm text-slate-500 hover:text-brand-600"
+        className="w-full text-center text-sm text-dim hover:text-paper"
       >
         重新輸入手機號碼
       </button>
@@ -233,7 +233,7 @@ function SignupPanel({ redirectTo }: { redirectTo: string }) {
           required
         />
         <FieldError message={state.fieldErrors?.password} />
-        <p className="mt-1 text-xs text-slate-500">至少 8 個字元，需包含英文字母與數字。</p>
+        <p className="mt-1 text-xs text-dim">至少 8 個字元，需包含英文字母與數字。</p>
       </div>
 
       {state.error && <Alert kind="error">{state.error}</Alert>}
@@ -266,7 +266,7 @@ export function LoginForm({
     <div className="space-y-5">
       {initialError && <Alert kind="error">{initialError}</Alert>}
 
-      <div className="flex rounded-lg bg-slate-100 p-1" role="tablist">
+      <div className="flex rounded-lg bg-transparent/5 p-1" role="tablist">
         {TABS.map((item) => (
           <button
             key={item.key}
@@ -276,8 +276,8 @@ export function LoginForm({
             onClick={() => setTab(item.key)}
             className={`flex-1 rounded-md px-2 py-2 text-sm font-medium transition ${
               tab === item.key
-                ? 'bg-white text-brand-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-transparent text-paper shadow-sm'
+                : 'text-dim hover:text-paper'
             }`}
           >
             {item.label}
@@ -290,9 +290,9 @@ export function LoginForm({
       {tab === 'signup' && <SignupPanel redirectTo={redirectTo} />}
 
       <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs text-slate-400">或</span>
-        <span className="h-px flex-1 bg-slate-200" />
+        <span className="h-px flex-1 bg-transparent/10" />
+        <span className="text-xs text-faint">或</span>
+        <span className="h-px flex-1 bg-transparent/10" />
       </div>
 
       {lineEnabled ? (
@@ -306,7 +306,7 @@ export function LoginForm({
           使用 LINE 登入
         </a>
       ) : (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2.5 text-center text-sm text-slate-500">
+        <div className="rounded-lg border border-dashed hairline bg-transparent/5 px-3 py-2.5 text-center text-sm text-dim">
           LINE 登入尚未設定
           <span className="mt-0.5 block text-xs">
             請在 .env.local 填入 LINE_CHANNEL_ID 與 LINE_CHANNEL_SECRET

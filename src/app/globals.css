@@ -1,64 +1,152 @@
 @import 'tailwindcss';
 
+/**
+ * 視覺沿用 KPlus / ZERO 既有網站的設計語彙：
+ * 近黑底、米白字、全大寫寬字距的微標籤、髮絲級框線、大量留白。
+ */
 @theme {
-  --color-brand-50: #eef5ff;
-  --color-brand-100: #d9e8ff;
-  --color-brand-200: #bcd7ff;
-  --color-brand-300: #8ebeff;
-  --color-brand-400: #599aff;
-  --color-brand-500: #3374f6;
-  --color-brand-600: #1f55eb;
-  --color-brand-700: #1a43d7;
-  --color-brand-800: #1c39ae;
-  --color-brand-900: #1c3589;
-  --color-ink: #10131a;
-  --font-sans: 'Noto Sans TC', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
-    'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  --color-ink: #080808;
+  --color-paper: #f2f2f0;
+
+  --color-line: rgba(242, 242, 240, 0.09);
+  --color-line-strong: rgba(242, 242, 240, 0.2);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue',
+    Helvetica, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  background: var(--color-ink);
+  color: var(--color-paper);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 表單元件的共用樣式，避免每個 input 都重複一長串 class */
-@utility field {
-  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm
-         text-slate-900 shadow-xs transition
-         placeholder:text-slate-400
-         focus:border-brand-500 focus:ring-2 focus:ring-brand-500/25 focus:outline-none
-         disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500;
+/* 文字層級：用透明度分層，而不是另外一整組灰階 */
+@utility text-dim {
+  color: rgba(242, 242, 240, 0.46);
+}
+@utility text-faint {
+  color: rgba(242, 242, 240, 0.28);
 }
 
-@utility label {
-  @apply mb-1.5 block text-sm font-medium text-slate-700;
+/* 全大寫微標籤 —— 這是這套設計最有辨識度的元素 */
+@utility micro {
+  @apply text-[10px] font-medium uppercase;
+  letter-spacing: 0.18em;
+}
+@utility micro-lg {
+  @apply text-xs font-medium uppercase;
+  letter-spacing: 0.22em;
 }
 
-@utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5
-         text-sm font-semibold transition
-         focus-visible:outline-2 focus-visible:outline-offset-2
-         disabled:cursor-not-allowed disabled:opacity-60;
-}
-
-@utility btn-primary {
-  @apply btn bg-brand-600 text-white hover:bg-brand-700 focus-visible:outline-brand-600;
-}
-
-@utility btn-secondary {
-  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50
-         focus-visible:outline-slate-500;
-}
-
-@utility btn-danger {
-  @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50
-         focus-visible:outline-red-500;
+@utility hairline {
+  border-color: var(--color-line);
 }
 
 @utility card {
-  @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  @apply rounded-none border bg-transparent;
+  border-color: var(--color-line);
+}
+
+@utility field {
+  @apply w-full rounded-none border bg-transparent px-3 py-2.5 text-sm transition;
+  border-color: var(--color-line-strong);
+  color: var(--color-paper);
+}
+.field::placeholder {
+  color: rgba(242, 242, 240, 0.28);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--color-paper);
+}
+.field:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+/* 下拉選單的選項在深色底下要強制指定，否則某些瀏覽器會顯示白底白字 */
+.field option {
+  background: #080808;
+  color: #f2f2f0;
+}
+
+@utility label {
+  @apply mb-2 block micro;
+  color: rgba(242, 242, 240, 0.46);
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-none border px-5 py-2.5
+         micro transition;
+  border-color: var(--color-line-strong);
+  color: var(--color-paper);
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--color-paper);
+}
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 主要動作：實心反白，整個畫面只有它是亮的 */
+@utility btn-primary {
+  @apply btn;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border-color: var(--color-paper);
+}
+.btn-primary:hover:not(:disabled) {
+  background: #fff;
+}
+
+@utility btn-secondary {
+  @apply btn;
+}
+
+@utility btn-danger {
+  @apply btn;
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fca5a5;
+}
+.btn-danger:hover:not(:disabled) {
+  border-color: #fca5a5;
+}
+
+/**
+ * 狀態標籤一律單色 —— 用亮度分層取代顏色。
+ * 「成立」的狀態最亮（反白），次要狀態用細框線，失效狀態最暗。
+ * 這樣同一個畫面不會出現綠色、琥珀色、灰色三種方框打架。
+ */
+@utility badge {
+  @apply inline-flex items-center rounded-none border px-2.5 py-1 micro whitespace-nowrap;
+  border-color: var(--color-line-strong);
+  color: rgba(242, 242, 240, 0.46);
+}
+
+/** 生效中：整個畫面最亮的元素 */
+@utility badge-on {
+  @apply badge;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border-color: var(--color-paper);
+}
+
+/** 等待中：細框線，文字較亮 */
+@utility badge-pending {
+  @apply badge;
+  color: var(--color-paper);
+}
+
+/** 已失效：最暗 */
+@utility badge-off {
+  @apply badge;
+  border-color: var(--color-line);
+  color: rgba(242, 242, 240, 0.28);
 }

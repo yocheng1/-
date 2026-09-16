@@ -19,7 +19,7 @@ function SubmitButton({ isNew }: { isNew: boolean }) {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
-  return <p className="mt-1 text-sm text-red-600">{message}</p>
+  return <p className="mt-1 text-sm text-red-400">{message}</p>
 }
 
 /** 由標題自動產生一組還算像樣的 slug，使用者仍可自行修改。 */
@@ -45,7 +45,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
       {event && <input type="hidden" name="id" value={event.id} />}
 
       <section className="card p-6">
-        <h2 className="mb-4 text-lg font-bold text-ink">基本資訊</h2>
+        <h2 className="mb-4 text-lg font-bold text-paper">基本資訊</h2>
 
         <div className="space-y-4">
           <div>
@@ -86,7 +86,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
                 ;(e.currentTarget as HTMLInputElement).dataset.touched = 'true'
               }}
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-dim">
               活動網址會是 /events/<span className="font-mono">你填的代稱</span>
             </p>
             <FieldError message={state.fieldErrors?.slug} />
@@ -154,8 +154,8 @@ export function EventForm({ event }: { event?: EventRecord }) {
       </section>
 
       <section className="card p-6">
-        <h2 className="mb-1 text-lg font-bold text-ink">時間</h2>
-        <p className="mb-4 text-sm text-slate-500">所有時間皆以台北時間 (UTC+8) 為準。</p>
+        <h2 className="mb-1 text-lg font-bold text-paper">時間</h2>
+        <p className="mb-4 text-sm text-dim">所有時間皆以台北時間 (UTC+8) 為準。</p>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -199,7 +199,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
               className="field"
               defaultValue={value('registrationOpensAt', toDatetimeLocalValue(event?.registrationOpensAt ?? null))}
             />
-            <p className="mt-1 text-xs text-slate-500">留空代表發佈後立即開放</p>
+            <p className="mt-1 text-xs text-dim">留空代表發佈後立即開放</p>
             <FieldError message={state.fieldErrors?.registrationOpensAt} />
           </div>
 
@@ -214,14 +214,14 @@ export function EventForm({ event }: { event?: EventRecord }) {
               className="field"
               defaultValue={value('registrationClosesAt', toDatetimeLocalValue(event?.registrationClosesAt ?? null))}
             />
-            <p className="mt-1 text-xs text-slate-500">留空代表到活動結束前都可報名</p>
+            <p className="mt-1 text-xs text-dim">留空代表到活動結束前都可報名</p>
             <FieldError message={state.fieldErrors?.registrationClosesAt} />
           </div>
         </div>
       </section>
 
       <section className="card p-6">
-        <h2 className="mb-4 text-lg font-bold text-ink">名額與狀態</h2>
+        <h2 className="mb-4 text-lg font-bold text-paper">名額與狀態</h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -236,7 +236,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
               className="field"
               defaultValue={value('capacity', String(event?.capacity ?? 0))}
             />
-            <p className="mt-1 text-xs text-slate-500">填 0 代表不限名額</p>
+            <p className="mt-1 text-xs text-dim">填 0 代表不限名額</p>
             <FieldError message={state.fieldErrors?.capacity} />
           </div>
 
@@ -263,11 +263,11 @@ export function EventForm({ event }: { event?: EventRecord }) {
             type="checkbox"
             name="waitlistEnabled"
             defaultChecked={state.values ? state.values.waitlistEnabled === 'on' : event?.waitlistEnabled}
-            className="mt-0.5 size-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+            className="mt-0.5 size-4 rounded hairline text-paper focus:ring-white/30"
           />
           <span className="text-sm">
-            <span className="font-medium text-slate-800">開放候補名單</span>
-            <span className="mt-0.5 block text-slate-500">
+            <span className="font-medium text-paper">開放候補名單</span>
+            <span className="mt-0.5 block text-dim">
               名額滿了之後仍可報名並列入候補，有人取消時自動遞補最早候補者。
             </span>
           </span>
@@ -276,7 +276,7 @@ export function EventForm({ event }: { event?: EventRecord }) {
 
       {state.error && (
         <div
-          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
           role="alert"
         >
           {state.error}

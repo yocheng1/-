@@ -16,14 +16,14 @@ export default function EventsPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-3xl font-black tracking-tight text-ink">活動列表</h1>
-        <p className="mt-1.5 text-slate-500">選擇有興趣的活動，登入後即可報名。</p>
+        <h1 className="text-3xl font-black tracking-tight text-paper">活動列表</h1>
+        <p className="mt-1.5 text-dim">選擇有興趣的活動，登入後即可報名。</p>
       </header>
 
       {events.length === 0 ? (
         <div className="card p-10 text-center">
-          <p className="font-medium text-slate-600">目前沒有開放中的活動</p>
-          <p className="mt-1 text-sm text-slate-400">請稍後再回來看看。</p>
+          <p className="font-medium text-dim">目前沒有開放中的活動</p>
+          <p className="mt-1 text-sm text-faint">請稍後再回來看看。</p>
         </div>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
@@ -35,7 +35,7 @@ export default function EventsPage() {
               <li key={event.id}>
                 <Link
                   href={`/events/${event.slug}`}
-                  className="card flex h-full flex-col overflow-hidden transition hover:border-brand-300 hover:shadow-md"
+                  className="card flex h-full flex-col overflow-hidden transition hover:hairline hover:shadow-md"
                 >
                   {event.coverImageUrl && (
                     // 封面由後台填入外部網址，故使用原生 img 避免綁定 next/image 網域設定
@@ -52,32 +52,32 @@ export default function EventsPage() {
                       <WindowBadge window={window} availability={availability} />
                     </div>
 
-                    <h2 className="text-lg font-bold text-ink">{event.title}</h2>
+                    <h2 className="text-lg font-bold text-paper">{event.title}</h2>
 
                     {event.summary && (
-                      <p className="mt-1.5 line-clamp-2 text-sm text-slate-500">
+                      <p className="mt-1.5 line-clamp-2 text-sm text-dim">
                         {event.summary}
                       </p>
                     )}
 
                     <dl className="mt-4 space-y-1 text-sm">
                       <div className="flex gap-2">
-                        <dt className="shrink-0 text-slate-400">時間</dt>
-                        <dd className="text-slate-700">
+                        <dt className="shrink-0 text-faint">時間</dt>
+                        <dd className="text-paper">
                           {formatDateRange(event.startsAt, event.endsAt)}
                         </dd>
                       </div>
                       {event.location && (
                         <div className="flex gap-2">
-                          <dt className="shrink-0 text-slate-400">地點</dt>
-                          <dd className="text-slate-700">{event.location}</dd>
+                          <dt className="shrink-0 text-faint">地點</dt>
+                          <dd className="text-paper">{event.location}</dd>
                         </div>
                       )}
                     </dl>
 
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-sm">
+                    <div className="mt-4 flex items-center justify-between border-t hairline pt-3 text-sm">
                       <CapacityText availability={availability} />
-                      <span className="font-semibold text-brand-600">查看詳情 →</span>
+                      <span className="font-semibold text-paper">查看詳情 →</span>
                     </div>
                   </div>
                 </Link>

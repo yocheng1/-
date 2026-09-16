@@ -24,51 +24,47 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="zh-Hant">
       <body className="flex min-h-dvh flex-col">
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
-          <nav className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3">
-            <Link href="/events" className="text-lg font-black tracking-tight text-ink">
-              KPlus<span className="text-brand-600"> 活動</span>
+        <header className="sticky top-0 z-30 border-b hairline bg-ink/90 backdrop-blur-xl">
+          <nav className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4">
+            <Link href="/events" className="flex items-center gap-3.5">
+              <span className="text-sm font-semibold tracking-[0.22em] uppercase">KPlus</span>
+              <span className="h-3.5 w-px bg-white/20" aria-hidden="true" />
+              <span className="micro text-dim">Events</span>
             </Link>
 
-            <Link
-              href="/events"
-              className="text-sm font-medium text-slate-600 hover:text-brand-600"
-            >
-              活動列表
+            <Link href="/events" className="micro text-dim transition hover:text-paper">
+              活動
             </Link>
 
             {user && (
-              <Link
-                href="/me"
-                className="text-sm font-medium text-slate-600 hover:text-brand-600"
-              >
+              <Link href="/me" className="micro text-dim transition hover:text-paper">
                 我的報名
               </Link>
             )}
 
             {user?.role === 'admin' && (
-              <Link
-                href="/admin"
-                className="text-sm font-medium text-slate-600 hover:text-brand-600"
-              >
-                後台管理
+              <Link href="/admin" className="micro text-dim transition hover:text-paper">
+                後台
               </Link>
             )}
 
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-4">
               {user ? (
                 <>
-                  <span className="hidden text-sm text-slate-500 sm:inline">
+                  <span className="hidden micro text-faint sm:inline">
                     {user.name || user.email || user.phone}
                   </span>
                   <form action={signOutAction}>
-                    <button type="submit" className="text-sm text-slate-500 hover:text-red-600">
+                    <button
+                      type="submit"
+                      className="micro text-dim transition hover:text-paper"
+                    >
                       登出
                     </button>
                   </form>
                 </>
               ) : (
-                <Link href="/login" className="btn-primary px-3 py-1.5">
+                <Link href="/login" className="btn-secondary px-4 py-2">
                   登入
                 </Link>
               )}
@@ -76,11 +72,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </nav>
         </header>
 
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-10">{children}</main>
 
-        <footer className="border-t border-slate-200 bg-white">
-          <div className="mx-auto w-full max-w-5xl px-4 py-6 text-sm text-slate-500">
-            © {new Date().getFullYear()} KPlus Helmet — 活動報名系統
+        <footer className="border-t hairline">
+          <div className="mx-auto w-full max-w-5xl px-5 py-8 micro text-faint">
+            © {new Date().getFullYear()} KPlus Helmet
           </div>
         </footer>
       </body>

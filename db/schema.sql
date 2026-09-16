@@ -170,3 +170,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_winners_event_registration
   ON winners (event_id, registration_id);
 
 CREATE INDEX IF NOT EXISTS idx_winners_event ON winners (event_id, created_at);
+
+-- ---------------------------------------------------------------- 集點獎勵
+-- 每累積 N 場「已結束活動」的有效報名，可兌換一次獎勵。
+-- 由工作人員在門市操作兌換，不是使用者自己按。
+
+CREATE TABLE IF NOT EXISTS rewards (
+  id               TEXT PRIMARY KEY,
+  user_id          TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  type             TEXT NOT NULL DEFAULT 'coffee',
+  store            TEXT NOT NULL,
+  -- 兌換當下累積的場次，方便日後對帳
+  qualifying_count INTEGER NOT NULL,
+  redeemed_at      TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rewards_user ON rewards (user_id, redeemed_at);

@@ -41,7 +41,7 @@ export function PrizeForm({ eventId }: { eventId: string }) {
             required
           />
           {state.fieldErrors?.name && (
-            <p className="mt-1 text-sm text-red-600">{state.fieldErrors.name}</p>
+            <p className="mt-1 text-sm text-red-400">{state.fieldErrors.name}</p>
           )}
         </div>
 
@@ -59,7 +59,7 @@ export function PrizeForm({ eventId }: { eventId: string }) {
             required
           />
           {state.fieldErrors?.quantity && (
-            <p className="mt-1 text-sm text-red-600">{state.fieldErrors.quantity}</p>
+            <p className="mt-1 text-sm text-red-400">{state.fieldErrors.quantity}</p>
           )}
         </div>
       </div>
@@ -80,11 +80,11 @@ export function PrizeForm({ eventId }: { eventId: string }) {
         <input
           type="checkbox"
           name="isBonus"
-          className="mt-0.5 size-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+          className="mt-0.5 size-4 rounded hairline text-paper focus:ring-white/30"
         />
         <span className="text-sm">
-          <span className="font-medium text-slate-800">這是加碼獎項</span>
-          <span className="mt-0.5 block text-slate-500">
+          <span className="font-medium text-paper">這是加碼獎項</span>
+          <span className="mt-0.5 block text-dim">
             勾選後，新增的當下現場所有人的畫面會跳出「加碼獎項登場」。
             事前不會出現在任何清單上。
           </span>
@@ -92,12 +92,12 @@ export function PrizeForm({ eventId }: { eventId: string }) {
       </label>
 
       {state.error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300" role="alert">
           {state.error}
         </div>
       )}
       {state.message && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700" role="status">
+        <div className="rounded-lg border hairline bg-white/5 text-paper" role="status">
           {state.message}
         </div>
       )}

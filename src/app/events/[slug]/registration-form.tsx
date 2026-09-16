@@ -18,7 +18,7 @@ function SubmitButton({ waitlist }: { waitlist: boolean }) {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
-  return <p className="mt-1 text-sm text-red-600">{message}</p>
+  return <p className="mt-1 text-sm text-red-400">{message}</p>
 }
 
 export type RegistrationDefaults = {
@@ -159,7 +159,7 @@ export function RegistrationForm({
 
       {state.error && (
         <div
-          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
           role="alert"
         >
           {state.error}
@@ -167,7 +167,7 @@ export function RegistrationForm({
       )}
 
       {waitlist && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="rounded-lg border hairline bg-white/5 text-paper">
           目前名額已滿。送出後將列入候補名單，若有人取消會自動遞補並通知您。
         </div>
       )}

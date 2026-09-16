@@ -49,14 +49,14 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
     <div>
       <Link
         href="/events"
-        className="mb-4 inline-block text-sm text-slate-500 hover:text-brand-600"
+        className="mb-4 inline-block text-sm text-dim hover:text-paper"
       >
         ← 回活動列表
       </Link>
 
       {registered && (
         <div
-          className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800"
+          className="mb-6 rounded-xl border hairline bg-white/5 text-paper"
           role="status"
         >
           <p className="font-semibold">
@@ -80,34 +80,34 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <WindowBadge window={window} availability={availability} />
             {event.status === 'draft' && (
-              <span className="inline-flex items-center rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-white">
+              <span className="inline-flex items-center rounded-full bg-transparent/10 px-2.5 py-1 text-xs font-semibold text-white">
                 草稿（僅管理員可見）
               </span>
             )}
           </div>
 
-          <h1 className="text-3xl font-black tracking-tight text-ink">{event.title}</h1>
-          {event.summary && <p className="mt-2 text-slate-600">{event.summary}</p>}
+          <h1 className="text-3xl font-black tracking-tight text-paper">{event.title}</h1>
+          {event.summary && <p className="mt-2 text-dim">{event.summary}</p>}
 
-          <dl className="mt-6 grid gap-3 border-y border-slate-100 py-5 sm:grid-cols-2">
+          <dl className="mt-6 grid gap-3 border-y hairline py-5 sm:grid-cols-2">
             <div>
-              <dt className="text-sm text-slate-400">活動時間</dt>
-              <dd className="mt-0.5 font-medium text-slate-800">
+              <dt className="text-sm text-faint">活動時間</dt>
+              <dd className="mt-0.5 font-medium text-paper">
                 {formatDateRange(event.startsAt, event.endsAt)}
               </dd>
             </div>
             {event.location && (
               <div>
-                <dt className="text-sm text-slate-400">地點</dt>
-                <dd className="mt-0.5 font-medium text-slate-800">{event.location}</dd>
+                <dt className="text-sm text-faint">地點</dt>
+                <dd className="mt-0.5 font-medium text-paper">{event.location}</dd>
               </div>
             )}
             <div>
-              <dt className="text-sm text-slate-400">名額</dt>
+              <dt className="text-sm text-faint">名額</dt>
               <dd className="mt-0.5 font-medium">
                 <CapacityText availability={availability} />
                 {event.waitlistEnabled && availability.isFull && (
-                  <span className="ml-2 text-sm text-amber-700">
+                  <span className="ml-2 text-sm text-dim">
                     （候補 {availability.waitlisted} 人）
                   </span>
                 )}
@@ -115,8 +115,8 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
             </div>
             {event.registrationClosesAt && (
               <div>
-                <dt className="text-sm text-slate-400">報名截止</dt>
-                <dd className="mt-0.5 font-medium text-slate-800">
+                <dt className="text-sm text-faint">報名截止</dt>
+                <dd className="mt-0.5 font-medium text-paper">
                   {formatDateTime(event.registrationClosesAt)}
                 </dd>
               </div>
@@ -125,8 +125,8 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
 
           {event.description && (
             <div className="mt-6">
-              <h2 className="mb-2 text-lg font-bold text-ink">活動說明</h2>
-              <p className="whitespace-pre-wrap leading-relaxed text-slate-700">
+              <h2 className="mb-2 text-lg font-bold text-paper">活動說明</h2>
+              <p className="whitespace-pre-wrap leading-relaxed text-paper">
                 {event.description}
               </p>
             </div>
@@ -136,38 +136,38 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
 
       {/* ------------------------------------------------ 報名區塊 */}
       <section className="card mt-6 p-6 sm:p-8">
-        <h2 className="mb-5 text-xl font-bold text-ink">報名</h2>
+        <h2 className="mb-5 text-xl font-bold text-paper">報名</h2>
 
         {existing ? (
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <RegistrationStatusBadge status={existing.status} />
-              <span className="text-slate-600">
+              <span className="text-dim">
                 您已於 {formatDateTime(existing.createdAt)} 完成報名。
               </span>
             </div>
 
             <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
               <div className="flex gap-2">
-                <dt className="text-slate-400">姓名</dt>
-                <dd className="text-slate-700">{existing.name}</dd>
+                <dt className="text-faint">姓名</dt>
+                <dd className="text-paper">{existing.name}</dd>
               </div>
               <div className="flex gap-2">
-                <dt className="text-slate-400">手機</dt>
-                <dd className="text-slate-700">{formatPhone(existing.phone)}</dd>
+                <dt className="text-faint">手機</dt>
+                <dd className="text-paper">{formatPhone(existing.phone)}</dd>
               </div>
             </dl>
 
             <form action={cancelRegistrationAction} className="mt-5">
               <input type="hidden" name="registrationId" value={existing.id} />
-              <button type="submit" className="btn-danger">
+              <button type="submit" className="btn-secondary">
                 取消報名
               </button>
             </form>
           </div>
         ) : !user ? (
           <div>
-            <p className="mb-4 text-slate-600">請先登入才能報名這場活動。</p>
+            <p className="mb-4 text-dim">請先登入才能報名這場活動。</p>
             <Link
               href={`/login?redirectTo=${encodeURIComponent(`/events/${event.slug}`)}`}
               className="btn-primary"
@@ -176,7 +176,7 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
             </Link>
           </div>
         ) : !canRegister ? (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600">
+          <div className="rounded-lg border hairline bg-transparent/5 px-4 py-3 text-dim">
             {window === 'open' && availability.isFull
               ? '很抱歉，這場活動名額已滿，且未開放候補。'
               : `目前無法報名：${registrationWindowMessage[window]}。`}

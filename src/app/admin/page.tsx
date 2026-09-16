@@ -20,8 +20,8 @@ export default async function AdminPage({
     <div>
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-ink">後台管理</h1>
-          <p className="mt-1.5 text-slate-500">管理活動與報名名單。</p>
+          <h1 className="text-3xl font-black tracking-tight text-paper">後台管理</h1>
+          <p className="mt-1.5 text-dim">管理活動與報名名單。</p>
         </div>
         <Link href="/admin/events/new" className="btn-primary">
           + 新增活動
@@ -30,7 +30,7 @@ export default async function AdminPage({
 
       {(saved || deleted) && (
         <div
-          className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800"
+          className="mb-6 rounded-xl border hairline bg-white/5 text-paper"
           role="status"
         >
           {saved ? '活動已儲存。' : '活動已刪除。'}
@@ -39,7 +39,7 @@ export default async function AdminPage({
 
       {events.length === 0 ? (
         <div className="card p-10 text-center">
-          <p className="font-medium text-slate-600">還沒有任何活動</p>
+          <p className="font-medium text-dim">還沒有任何活動</p>
           <Link href="/admin/events/new" className="btn-primary mt-4">
             建立第一場活動
           </Link>
@@ -47,30 +47,30 @@ export default async function AdminPage({
       ) : (
         <div className="card overflow-x-auto">
           <table className="w-full min-w-[42rem] text-sm">
-            <thead className="border-b border-slate-200 bg-slate-50 text-left">
+            <thead className="border-b hairline bg-transparent/5 text-left">
               <tr>
-                <th className="px-4 py-3 font-semibold text-slate-600">活動</th>
-                <th className="px-4 py-3 font-semibold text-slate-600">時間</th>
-                <th className="px-4 py-3 font-semibold text-slate-600">狀態</th>
-                <th className="px-4 py-3 font-semibold text-slate-600">報名</th>
+                <th className="px-4 py-3 font-semibold text-dim">活動</th>
+                <th className="px-4 py-3 font-semibold text-dim">時間</th>
+                <th className="px-4 py-3 font-semibold text-dim">狀態</th>
+                <th className="px-4 py-3 font-semibold text-dim">報名</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-white/10">
               {events.map((event) => {
                 const availability = getAvailability(event)
                 return (
-                  <tr key={event.id} className="hover:bg-slate-50">
+                  <tr key={event.id} className="hover:bg-transparent/5">
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/events/${event.id}`}
-                        className="font-semibold text-ink hover:text-brand-600"
+                        className="font-semibold text-paper hover:text-paper"
                       >
                         {event.title}
                       </Link>
-                      <div className="font-mono text-xs text-slate-400">/{event.slug}</div>
+                      <div className="font-mono text-xs text-faint">/{event.slug}</div>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="px-4 py-3 text-dim">
                       {formatDateRange(event.startsAt, event.endsAt)}
                     </td>
                     <td className="px-4 py-3">
@@ -79,11 +79,11 @@ export default async function AdminPage({
                         availability={availability}
                       />
                     </td>
-                    <td className="px-4 py-3 text-slate-700">
+                    <td className="px-4 py-3 text-paper">
                       <span className="font-semibold">{availability.confirmed}</span>
                       {event.capacity > 0 && ` / ${event.capacity}`}
                       {availability.waitlisted > 0 && (
-                        <span className="ml-1 text-amber-700">
+                        <span className="ml-1 text-dim">
                           (候補 {availability.waitlisted})
                         </span>
                       )}
@@ -91,7 +91,7 @@ export default async function AdminPage({
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <Link
                         href={`/admin/events/${event.id}`}
-                        className="font-semibold text-brand-600 hover:text-brand-700"
+                        className="font-semibold text-paper hover:text-paper"
                       >
                         管理 →
                       </Link>
