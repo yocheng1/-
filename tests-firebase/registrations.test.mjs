@@ -65,13 +65,26 @@ describe('Firestore 名額控管', () => {
     assert.equal((await eventDoc(eventId)).confirmedCount, 5, '計數器要與實際筆數一致')
   })
 
-  it('不限名額時全部都能報名', async () => {
+  it('不限名額、60 人同時報名，全部都要成功', async () => {
+    // 這題防守的是寫入熱點：若每筆報名都用交易去讀寫同一份活動文件上的
+    // 計數器，數十人同時送出會互相卡住、交易重試用完而失敗（實際發生過，
+    // 50 筆只成功 37 筆）。不限名額不需要判斷名額，就不該碰活動文件。
     const eventId = await makeEvent({ capacity: 0 })
     const results = await Promise.all(
-      Array.from({ length: 30 }, (_, i) => createRegistration(eventId, `u${i}`, form(i))),
+      Array.from({ length: 60 }, (_, i) => createRegistration(eventId, `u${i}`, form(i))),
     )
-    assert.equal(results.filter((r) => r.ok).length, 30)
-    assert.equal((await eventDoc(eventId)).confirmedCount, 30)
+
+    const ok = results.filter((r) => r.ok)
+    assert.equal(ok.length, 60, `應全數成功，實際 ${ok.length}`)
+    assert.equal(await countByStatus(eventId, 'confirmed'), 60)
+  })
+
+  it('抽籤模式 60 人同時登記也不會互卡', async () => {
+    const eventId = await makeEvent({ capacity: 5, allocationMode: 'lottery' })
+    const results = await Promise.all(
+      Array.from({ length: 60 }, (_, i) => createRegistration(eventId, `u${i}`, form(i))),
+    )
+    assert.equal(results.filter((r) => r.ok && r.status === 'entered').length, 60)
   })
 
   it('額滿且有開候補 → 超額的轉為候補', async () => {

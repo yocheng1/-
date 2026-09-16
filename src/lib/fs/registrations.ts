@@ -61,6 +61,25 @@ export async function createRegistration(
   const eventRef = firestore.collection(COL.events).doc(eventId)
   const regRef = firestore.collection(COL.registrations).doc(registrationId(eventId, userId))
 
+  const eventSnap0 = await eventRef.get()
+  if (!eventSnap0.exists) return { ok: false, error: '找不到這場活動。' }
+  const event0 = eventSnap0.data() as { capacity: number; allocationMode?: string }
+
+  /**
+   * 不需要判斷名額時，就別動活動文件。
+   *
+   * 每一筆報名都去讀寫同一份活動文件上的計數器，是 Firestore 的寫入熱點：
+   * 數十人同時報名會互相卡住，交易重試用完就失敗。
+   * 不限名額與抽籤模式本來就不必數人數，走這條快路，
+   * 報名文件本身各自獨立（ID 是 活動_使用者），完全沒有競爭。
+   */
+  const needsCapacityCheck =
+    event0.allocationMode !== 'lottery' && Number(event0.capacity ?? 0) > 0
+
+  if (!needsCapacityCheck) {
+    return createWithoutCapacityCheck(eventRef, regRef, eventId, userId, phone, input)
+  }
+
   try {
     return await firestore.runTransaction(async (tx): Promise<RegisterResult> => {
       const eventSnap = await tx.get(eventRef)
@@ -231,6 +250,73 @@ export async function cancelRegistration(
     console.error('[registration] 取消失敗：', error)
     return { ok: false, error: '取消失敗，請稍後再試。' }
   }
+}
+
+/**
+ * 不限名額／抽籤模式的報名路徑：只寫自己的報名文件。
+ *
+ * 人數計數器改用 FieldValue.increment 在交易外累加 —— 它是伺服器端的
+ * 原子操作，不需要先讀取，不會因為讀到舊值而重試，純粹給畫面顯示用。
+ */
+async function createWithoutCapacityCheck(
+  eventRef: FirebaseFirestore.DocumentReference,
+  regRef: FirebaseFirestore.DocumentReference,
+  eventId: string,
+  userId: string,
+  phone: string,
+  input: RegisterInput,
+): Promise<RegisterResult> {
+  const eventSnap = await eventRef.get()
+  const event = eventSnap.data() as {
+    status: string
+    allocationMode?: string
+    registrationOpensAt?: string | null
+    registrationClosesAt?: string | null
+    endsAt?: string | null
+  }
+
+  const window = registrationWindow(event)
+  if (window !== 'open') {
+    return { ok: false, error: `目前無法報名：${WINDOW_LABEL[window]}。` }
+  }
+
+  const existing = await regRef.get()
+  if (existing.exists && existing.data()!.status !== 'cancelled') {
+    return { ok: false, error: '您已經報名過這場活動了。' }
+  }
+
+  const status: RegistrationStatus =
+    event.allocationMode === 'lottery' ? 'entered' : 'confirmed'
+  const now = new Date().toISOString()
+  const code = existing.exists
+    ? (existing.data()!.code as string) || generateTicketCode()
+    : generateTicketCode()
+
+  await regRef.set({
+    eventId,
+    userId,
+    status,
+    code,
+    name: input.name.trim(),
+    phone,
+    email: (input.email ?? '').trim().toLowerCase() || null,
+    helmetSize: input.helmetSize || null,
+    emergencyContactName: (input.emergencyContactName ?? '').trim() || null,
+    emergencyContactPhone: normalizePhone(input.emergencyContactPhone ?? '') || null,
+    notes: (input.notes ?? '').trim() || null,
+    createdAt: existing.exists ? existing.data()!.createdAt : now,
+    updatedAt: now,
+    cancelledAt: null,
+  })
+
+  if (status === 'confirmed') {
+    // 只給畫面顯示用，失敗不影響報名本身
+    await eventRef
+      .update({ confirmedCount: FieldValue.increment(1) })
+      .catch(() => undefined)
+  }
+
+  return { ok: true, id: regRef.id, status }
 }
 
 // ---------------------------------------------------------------- 報名開放時間
