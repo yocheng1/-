@@ -14,12 +14,12 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const testsDir = join(projectRoot, 'tests')
 
 const files = readdirSync(testsDir)
-  .filter((name) => name.endsWith('.test.ts'))
+  .filter((name) => name.endsWith('.test.ts') || name.endsWith('.test.mjs'))
   .sort()
   .map((name) => join('tests', name))
 
 if (files.length === 0) {
-  console.error('✗ tests/ 底下找不到任何 *.test.ts')
+  console.error('✗ tests/ 底下找不到任何測試檔')
   process.exit(1)
 }
 
